@@ -1,7 +1,5 @@
 ﻿create sequence main_sequence increment by 1 minvalue 10000;
 
-drop table dict_bike_brand;
-
 create table dict_bike_brand
 (
 brand_id int not null default nextval('main_sequence'),
@@ -40,6 +38,54 @@ By changing its name in the same year as it celebrated its 20th birthday, the br
 );
 
 create table dict_bike_types
+(
+bike_type_id int not null default nextval('main_sequence'),
+bike_type_code varchar(100),
+bike_type_name varchar(100),
+created_at timestamp without time zone default timestamp 'now()' not null,
+updated_at timestamp without time zone default timestamp 'now()' not null
+);
+
+insert into dict_bike_types
+(bike_type_code,bike_type_name)
+values
+(
+'mountain',
+'Mountain bike'),
+('road',
+'Road bike'),
+('bmx',
+'BMX bike'),
+('other',
+'Other bike');
+
+create table dict_bike_colors
+(
+bike_color_id int not null default nextval('main_sequence'),
+bike_color_code varchar(100),
+bike_color_name varchar(100),
+created_at timestamp without time zone default timestamp 'now()' not null,
+updated_at timestamp without time zone default timestamp 'now()' not null
+);
+
+insert into dict_bike_colors
+(bike_color_code,bike_color_name)
+values
+('black','Black'),
+('white','White'),
+('red','Red'),
+('green','Green'),
+('blue','Blue');
+
+
+
+
+
+
+
+
+
+
 
 
 
