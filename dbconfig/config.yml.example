@@ -1,0 +1,6 @@
+dbconfiguration:
+    adapter: 'postgresql'
+    host: 'localhost'
+    database: 'bikerentalshop'
+    username: 'postgres'
+    password: 'xxxxxx'
