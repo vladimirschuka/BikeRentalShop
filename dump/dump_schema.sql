@@ -160,7 +160,7 @@ CREATE TABLE dict_bike_models (
     bike_model_folding_flag boolean DEFAULT false NOT NULL,
     bike_model_prof_flag boolean DEFAULT false NOT NULL,
     bike_model_current_state_id integer,
-    created_at timestamp without time zone DEFAULT '2017-01-08 02:13:22.870837'::timestamp without time zone,
+    created_at timestamp without time zone DEFAULT '2017-01-08 04:08:27.991938'::timestamp without time zone,
     updated_at timestamp without time zone DEFAULT '2017-01-08 02:13:22.870837'::timestamp without time zone
 );
 
@@ -198,6 +198,21 @@ CREATE TABLE dict_bike_types (
 ALTER TABLE dict_bike_types OWNER TO postgres;
 
 --
+-- Name: dict_vals; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dict_vals (
+    val_id integer DEFAULT nextval('main_sequence'::regclass),
+    val_code character varying(100),
+    val_name character varying(100),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE dict_vals OWNER TO postgres;
+
+--
 -- Name: t_bikes; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -214,6 +229,130 @@ CREATE TABLE t_bikes (
 
 
 ALTER TABLE t_bikes OWNER TO postgres;
+
+--
+-- Name: t_bikes_states; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_bikes_states (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    bike_id integer,
+    bike_state_id integer,
+    bike_state_date timestamp without time zone
+);
+
+
+ALTER TABLE t_bikes_states OWNER TO postgres;
+
+--
+-- Name: t_customers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers (
+    customer_id integer DEFAULT nextval('main_sequence'::regclass),
+    customer_login character varying(100),
+    customer_password character varying(1000),
+    customer_name character varying(200),
+    customer_surname character varying(200),
+    customer_last_name character varying(200),
+    mobile_phone_main character varying(50),
+    mobile_phone_second character varying(50),
+    email character varying(100),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers OWNER TO postgres;
+
+--
+-- Name: t_orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_orders (
+    order_id integer DEFAULT nextval('main_sequence'::regclass),
+    order_code character varying(100),
+    customer_id integer,
+    canceled_flag boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_orders OWNER TO postgres;
+
+--
+-- Name: t_orders_lists; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_orders_lists (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    order_id integer,
+    bike_id integer,
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_orders_lists OWNER TO postgres;
+
+--
+-- Name: t_prices_base_plans; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_base_plans (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    bike_model_id integer,
+    val_id integer,
+    price double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_base_plans OWNER TO postgres;
+
+--
+-- Name: t_prices_specials; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_specials (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    price_spec_code character varying(100),
+    price_spec_dscr character varying(1000),
+    price_spec_sum_flag boolean,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_specials OWNER TO postgres;
+
+--
+-- Name: t_prices_specials_conditions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_specials_conditions (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    beg_date_order timestamp without time zone,
+    end_date_order timestamp without time zone,
+    pediod_beg_date timestamp without time zone,
+    pediod_end_date timestamp without time zone,
+    bike_model_id integer,
+    customer_group_id integer,
+    bike_count integer,
+    period_order_in_hour integer,
+    val_id integer,
+    prct_flag boolean,
+    price_specials_value double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_specials_conditions OWNER TO postgres;
 
 --
 -- Name: v_bike_models; Type: VIEW; Schema: public; Owner: postgres

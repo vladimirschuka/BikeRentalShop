@@ -160,7 +160,7 @@ CREATE TABLE dict_bike_models (
     bike_model_folding_flag boolean DEFAULT false NOT NULL,
     bike_model_prof_flag boolean DEFAULT false NOT NULL,
     bike_model_current_state_id integer,
-    created_at timestamp without time zone DEFAULT '2017-01-08 02:13:22.870837'::timestamp without time zone,
+    created_at timestamp without time zone DEFAULT '2017-01-08 04:08:27.991938'::timestamp without time zone,
     updated_at timestamp without time zone DEFAULT '2017-01-08 02:13:22.870837'::timestamp without time zone
 );
 
@@ -198,6 +198,21 @@ CREATE TABLE dict_bike_types (
 ALTER TABLE dict_bike_types OWNER TO postgres;
 
 --
+-- Name: dict_vals; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dict_vals (
+    val_id integer DEFAULT nextval('main_sequence'::regclass),
+    val_code character varying(100),
+    val_name character varying(100),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE dict_vals OWNER TO postgres;
+
+--
 -- Name: t_bikes; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -214,6 +229,130 @@ CREATE TABLE t_bikes (
 
 
 ALTER TABLE t_bikes OWNER TO postgres;
+
+--
+-- Name: t_bikes_states; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_bikes_states (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    bike_id integer,
+    bike_state_id integer,
+    bike_state_date timestamp without time zone
+);
+
+
+ALTER TABLE t_bikes_states OWNER TO postgres;
+
+--
+-- Name: t_customers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers (
+    customer_id integer DEFAULT nextval('main_sequence'::regclass),
+    customer_login character varying(100),
+    customer_password character varying(1000),
+    customer_name character varying(200),
+    customer_surname character varying(200),
+    customer_last_name character varying(200),
+    mobile_phone_main character varying(50),
+    mobile_phone_second character varying(50),
+    email character varying(100),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers OWNER TO postgres;
+
+--
+-- Name: t_orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_orders (
+    order_id integer DEFAULT nextval('main_sequence'::regclass),
+    order_code character varying(100),
+    customer_id integer,
+    canceled_flag boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_orders OWNER TO postgres;
+
+--
+-- Name: t_orders_lists; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_orders_lists (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    order_id integer,
+    bike_id integer,
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_orders_lists OWNER TO postgres;
+
+--
+-- Name: t_prices_base_plans; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_base_plans (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    bike_model_id integer,
+    val_id integer,
+    price double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_base_plans OWNER TO postgres;
+
+--
+-- Name: t_prices_specials; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_specials (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    price_spec_code character varying(100),
+    price_spec_dscr character varying(1000),
+    price_spec_sum_flag boolean,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_specials OWNER TO postgres;
+
+--
+-- Name: t_prices_specials_conditions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices_specials_conditions (
+    id integer DEFAULT nextval('main_sequence'::regclass),
+    beg_date_order timestamp without time zone,
+    end_date_order timestamp without time zone,
+    pediod_beg_date timestamp without time zone,
+    pediod_end_date timestamp without time zone,
+    bike_model_id integer,
+    customer_group_id integer,
+    bike_count integer,
+    period_order_in_hour integer,
+    val_id integer,
+    prct_flag boolean,
+    price_specials_value double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices_specials_conditions OWNER TO postgres;
 
 --
 -- Name: v_bike_models; Type: VIEW; Schema: public; Owner: postgres
@@ -260,6 +399,7 @@ COPY dict_bike_brands (brand_id, brand_code, brand_name, brand_dscr, brand_prof_
 10002	giant	Giant	Giant Manufacturing Co. Ltd. is a Taiwanese bicycle manufacturer that is recognized as the world's largest bicycle manufacturer.	t	Taiwan	2017-01-06 21:23:45.33063	2017-01-06 21:23:45.33063
 10003	trek	Trek	Trek Bicycle Corporation is a major bicycle and cycling product manufacturer and distributor under brand names Trek, \n  Electra Bicycle Company, Gary Fisher, Bontrager, Diamant Bikes, Villiger Bikes and until 2008, LeMond Racing Cycles and Klein.	t	US	2017-01-06 21:23:45.33063	2017-01-06 21:23:45.33063
 10004	btwin	B'Twin	DECATHLON CYCLE WAS REBORN AS B’TWIN.\nBy changing its name in the same year as it celebrated its 20th birthday, the brand now had the means to reach its ambition: to become THE favourite brand amongst cyclists.	f	Fr	2017-01-06 21:23:45.33063	2017-01-06 21:23:45.33063
+10025	forward	Forward	One of most popular bikes in Russia	f	Russia	2017-01-06 21:23:45.33063	2017-01-06 21:23:45.33063
 \.
 
 
@@ -273,6 +413,7 @@ COPY dict_bike_colors (bike_color_id, bike_color_code, bike_color_name, created_
 10011	red	Red	2017-01-07 01:39:37.194508	2017-01-07 01:39:37.194508
 10012	green	Green	2017-01-07 01:39:37.194508	2017-01-07 01:39:37.194508
 10013	blue	Blue	2017-01-07 01:39:37.194508	2017-01-07 01:39:37.194508
+10024	yellow	Yellow	2017-01-07 01:39:37.194508	2017-01-07 01:39:37.194508
 \.
 
 
@@ -296,6 +437,7 @@ COPY dict_bike_states (bike_state_id, bike_state_code, bike_state_name, created_
 10015	broken	Broken	2017-01-07 01:53:27.712546	2017-01-07 01:53:27.712546
 10016	onservice	On service	2017-01-07 01:53:27.712546	2017-01-07 01:53:27.712546
 10017	eol	End of life	2017-01-07 01:53:27.712546	2017-01-07 01:53:27.712546
+10026	using	Clients using	2017-01-07 01:53:27.712546	2017-01-07 01:53:27.712546
 \.
 
 
@@ -313,10 +455,20 @@ COPY dict_bike_types (bike_type_id, bike_type_code, bike_type_name, created_at, 
 
 
 --
+-- Data for Name: dict_vals; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY dict_vals (val_id, val_code, val_name, created_at, updated_at) FROM stdin;
+10030	eur	EUR	2017-01-09 20:22:41.439588	2017-01-09 20:22:41.439588
+10031	chf	CHF	2017-01-09 20:22:41.447907	2017-01-09 20:22:41.447907
+\.
+
+
+--
 -- Name: main_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('main_sequence', 10023, true);
+SELECT pg_catalog.setval('main_sequence', 10038, true);
 
 
 --
@@ -324,6 +476,67 @@ SELECT pg_catalog.setval('main_sequence', 10023, true);
 --
 
 COPY t_bikes (bike_id, bike_inventory_number, bike_model_id, bike_use_beg_date, bike_price, bike_current_state_id, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_bikes_states; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_bikes_states (id, bike_id, bike_state_id, bike_state_date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_customers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_customers (customer_id, customer_login, customer_password, customer_name, customer_surname, customer_last_name, mobile_phone_main, mobile_phone_second, email, created_at, updated_at) FROM stdin;
+10032	piterparker	password1	Piter		Parker	+4123456789		spider_man@gmail.com	2017-01-09 20:41:49.735871	2017-01-09 20:41:49.735871
+10033	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-09 20:41:49.743106	2017-01-09 20:41:49.743106
+10034	vladimirschuka	pass1234	Vladimir	Alexandrovich	Schuka	+79022535754		vladimirschuka@gmail.com	2017-01-09 20:41:49.748355	2017-01-09 20:41:49.748355
+10036	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-09 20:41:55.139819	2017-01-09 20:41:55.139819
+10035	N/A	N/A	Piter		Parker	+4123456789		spider_man@gmail.com	2017-01-09 20:41:55.134765	2017-01-09 20:41:55.134765
+\.
+
+
+--
+-- Data for Name: t_orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_orders (order_id, order_code, customer_id, canceled_flag, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_orders_lists; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_orders_lists (id, order_id, bike_id, beg_date, end_date, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_prices_base_plans; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_prices_base_plans (id, bike_model_id, val_id, price, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_prices_specials; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_prices_specials (id, price_spec_code, price_spec_dscr, price_spec_sum_flag, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_prices_specials_conditions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_prices_specials_conditions (id, beg_date_order, end_date_order, pediod_beg_date, pediod_end_date, bike_model_id, customer_group_id, bike_count, period_order_in_hour, val_id, prct_flag, price_specials_value, created_at, updated_at) FROM stdin;
 \.
 
 
