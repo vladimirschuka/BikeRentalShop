@@ -196,7 +196,7 @@ customers_groups_membership.each{ |c|
   end  
 }
 puts '------------------------'
-puts '       Available CustomersGroups'
+puts '       Available CustomersGroupsMembership'
 puts '------------------------'
 bc = CustomersGroupsMembership.all
 tp bc
