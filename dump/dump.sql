@@ -266,6 +266,39 @@ CREATE TABLE t_customers (
 ALTER TABLE t_customers OWNER TO postgres;
 
 --
+-- Name: t_customers_groups; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers_groups (
+    customer_group_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    customer_group_code character varying(100),
+    customer_group_name character varying,
+    customer_group_dscr character varying,
+    created_at timestamp without time zone DEFAULT now(),
+    update_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers_groups OWNER TO postgres;
+
+--
+-- Name: t_customers_groups_membership; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers_groups_membership (
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
+    customer_id integer,
+    customer_group_id integer,
+    created_at timestamp without time zone DEFAULT now(),
+    update_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers_groups_membership OWNER TO postgres;
+
+--
 -- Name: t_orders; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -468,7 +501,7 @@ COPY dict_vals (val_id, val_code, val_name, created_at, updated_at) FROM stdin;
 -- Name: main_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('main_sequence', 10038, true);
+SELECT pg_catalog.setval('main_sequence', 10066, true);
 
 
 --
@@ -497,6 +530,38 @@ COPY t_customers (customer_id, customer_login, customer_password, customer_name,
 10034	vladimirschuka	pass1234	Vladimir	Alexandrovich	Schuka	+79022535754		vladimirschuka@gmail.com	2017-01-09 20:41:49.748355	2017-01-09 20:41:49.748355
 10036	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-09 20:41:55.139819	2017-01-09 20:41:55.139819
 10035	N/A	N/A	Piter		Parker	+4123456789		spider_man@gmail.com	2017-01-09 20:41:55.134765	2017-01-09 20:41:55.134765
+10039	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-16 17:09:19.244606	2017-01-16 17:09:19.244606
+10040	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-16 17:10:34.163328	2017-01-16 17:10:34.163328
+10041	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-16 17:11:13.560411	2017-01-16 17:11:13.560411
+10045	N/A	N/A	Clark		Kent	+4123456780		superman@gmail.com	2017-01-16 17:14:39.385875	2017-01-16 17:14:39.385875
+10049	dmitrii	pass1234	Dmitry		Schuka	+798878998796		mnbm@gmail.com	2017-01-16 18:44:45.556342	2017-01-16 18:44:45.556342
+10050	scvbnm	pass1234	SomeOne		LastName	+79022538987		someone@gmail.com	2017-01-16 18:44:45.561187	2017-01-16 18:44:45.561187
+10051	oneclient	pass1234	Clients		Clients2	+79992535754		clients@gmail.com	2017-01-16 18:44:45.56564	2017-01-16 18:44:45.56564
+\.
+
+
+--
+-- Data for Name: t_customers_groups; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_customers_groups (customer_group_id, customer_group_code, customer_group_name, customer_group_dscr, created_at, update_at) FROM stdin;
+10046	vip	VIP clients	VIP clients	2017-01-16 17:14:39.40712	2017-01-16 17:14:39.406861
+10047	oneyear	One year	Clients that have more then one year expirience work with our company	2017-01-16 17:14:39.411593	2017-01-16 17:14:39.411389
+10048	good	Good clients	Clients those using often the our bikes (more then one times month (average from half year)) 	2017-01-16 17:14:39.41527	2017-01-16 17:14:39.415129
+\.
+
+
+--
+-- Data for Name: t_customers_groups_membership; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_customers_groups_membership (id, beg_date, end_date, customer_id, customer_group_id, created_at, update_at) FROM stdin;
+10061	2000-01-01 00:00:00	2100-01-01 00:00:00	10032	10046	2017-01-16 19:10:19.41332	2017-01-16 19:10:19.412998
+10062	2000-01-01 00:00:00	2100-01-01 00:00:00	10032	10047	2017-01-16 19:10:19.424442	2017-01-16 19:10:19.424299
+10063	2000-01-01 00:00:00	2100-01-01 00:00:00	10034	10048	2017-01-16 19:10:19.434214	2017-01-16 19:10:19.434069
+10064	2000-01-01 00:00:00	2100-01-01 00:00:00	10050	10047	2017-01-16 19:10:19.443106	2017-01-16 19:10:19.442964
+10065	2000-01-01 00:00:00	2100-01-01 00:00:00	10051	10048	2017-01-16 19:10:19.450158	2017-01-16 19:10:19.449973
+10066	2000-01-01 00:00:00	2100-01-01 00:00:00	10051	10046	2017-01-16 19:10:19.457666	2017-01-16 19:10:19.457514
 \.
 
 

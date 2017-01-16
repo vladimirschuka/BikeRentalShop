@@ -54,3 +54,13 @@ class Customer<ActiveRecord::Base
   self.table_name = 't_customers'
 end
 
+class CustomersGroup<ActiveRecord::Base
+  self.table_name = 't_customers_groups'
+end
+
+class CustomersGroupsMembership<ActiveRecord::Base
+  self.table_name = 't_customers_groups_membership'
+end
+
+
+

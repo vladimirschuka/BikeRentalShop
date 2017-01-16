@@ -266,6 +266,39 @@ CREATE TABLE t_customers (
 ALTER TABLE t_customers OWNER TO postgres;
 
 --
+-- Name: t_customers_groups; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers_groups (
+    customer_group_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    customer_group_code character varying(100),
+    customer_group_name character varying,
+    customer_group_dscr character varying,
+    created_at timestamp without time zone DEFAULT now(),
+    update_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers_groups OWNER TO postgres;
+
+--
+-- Name: t_customers_groups_membership; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_customers_groups_membership (
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
+    customer_id integer,
+    customer_group_id integer,
+    created_at timestamp without time zone DEFAULT now(),
+    update_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_customers_groups_membership OWNER TO postgres;
+
+--
 -- Name: t_orders; Type: TABLE; Schema: public; Owner: postgres
 --
 

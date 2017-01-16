@@ -119,12 +119,16 @@ tp bc
 customers = [
   ['piterparker','password1','Piter','','Parker','+4123456789','','spider_man@gmail.com'],
   ['N/A','N/A','Clark','','Kent','+4123456780','','superman@gmail.com'],
-  ['vladimirschuka','pass1234','Vladimir','Alexandrovich','Schuka','+79022535754','','vladimirschuka@gmail.com']
+  ['N/A','N/A','Vladimir','Alexandrovich','Schuka','+79022535754','','vladimirschuka@gmail.com'],
+  ['vladimirschuka','pass1234','Vladimir','Alexandrovich','Schuka','+79022535754','','vladimirschuka@gmail.com'],
+  ['dmitrii','pass1234','Dmitry','','Schuka','+798878998796','','mnbm@gmail.com'],
+  ['scvbnm','pass1234','SomeOne','','LastName','+79022538987','','someone@gmail.com'],
+  ['oneclient','pass1234','Clients','','Clients2','+79992535754','','clients@gmail.com'],
 ]
 
 
 customers.each{ |c|
-  if !Customer.exists?(:customer_login => c[0]) or c[0]=='N/A'
+  if !Customer.exists?(:customer_login => c[0]) 
     bc = Customer.new
     bc.customer_login = c[0]
     bc.customer_password = c[1]
@@ -141,5 +145,59 @@ puts '------------------------'
 puts '       Available Customers'
 puts '------------------------'
 bc = Customer.all
+tp bc
+
+#Customers_Groups
+customers_groups = [
+  ['vip','VIP clients','VIP clients'],
+  ['oneyear','One year','Clients that have more then one year expirience work with our company'],
+  ['good','Good clients','Clients those using often the our bikes (more then one times month (average from half year)) ']
+]
+
+
+customers_groups.each{ |c|
+  if !CustomersGroup.exists?(:customer_group_code => c[0])
+    bc = CustomersGroup.new
+    bc.customer_group_code = c[0]
+    bc.customer_group_name = c[1]
+    bc.customer_group_dscr = c[2]
+    bc.save
+  end  
+}
+puts '------------------------'
+puts '       Available CustomersGroups'
+puts '------------------------'
+bc = CustomersGroup.all
+tp bc
+
+#Customers_Groups_Membership
+
+customers_groups_membership = [
+  ['2000-01-01','2100-01-01','piterparker','vip'],
+  ['2000-01-01','2100-01-01','piterparker','oneyear'],
+  ['2000-01-01','2100-01-01','vladimirschuka','good'],
+  ['2000-01-01','2100-01-01','vladimirschuka','good'],
+  ['2000-01-01','2100-01-01','scvbnm','oneyear'],
+  ['2000-01-01','2100-01-01','oneclient','good'],
+  ['2000-01-01','2100-01-01','oneclient','vip'] 
+]
+
+
+customers_groups_membership.each{ |c|
+  if !CustomersGroupsMembership.exists?(:beg_date => c[0] , 
+                                        :customer_id => Customer.where(customer_login:  c[2]).first.customer_id,
+                                        :customer_group_id => CustomersGroup.where(customer_group_code:  c[3]).first.customer_group_id)
+    bc = CustomersGroupsMembership.new
+    bc.beg_date = c[0]
+    bc.end_date = c[1]
+    bc.customer_id = Customer.where(customer_login:  c[2]).first.customer_id
+    bc.customer_group_id = CustomersGroup.where(customer_group_code:  c[3]).first.customer_group_id
+    bc.save
+  end  
+}
+puts '------------------------'
+puts '       Available CustomersGroups'
+puts '------------------------'
+bc = CustomersGroupsMembership.all
 tp bc
 
