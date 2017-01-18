@@ -1,5 +1,6 @@
 require "./db_model.rb"
 
+
 # Colors
 colors = [
   ['black','Black'],
@@ -90,7 +91,7 @@ types.each{ |c|
   end  
 }
 puts '------------------------'
-puts '       Available States'
+puts '       Available Types'
 puts '------------------------'
 bc = BikeType.all
 tp bc
@@ -201,3 +202,77 @@ puts '------------------------'
 bc = CustomersGroupsMembership.all
 tp bc
 
+
+#Dict_Bikes_models
+
+
+BikeBrand.all.each do |bb|
+  BikeColor.all.each do |bcl|
+    BikeType.all.each do |bt|
+      
+      bc = BikeModel.new
+      bc.bike_model_code = bb.brand_code + '_' + bcl.bike_color_code + '_' + bt.bike_type_code
+      bc.bike_model_name = bb.brand_name + ' ' + bcl.bike_color_name + ' ' + bt.bike_type_name
+      bc.bike_model_brand_id = bb.brand_id
+      bc.bike_model_type_id = bt.bike_type_id
+      bc.bike_model_color_id = bcl.bike_color_id
+      bc.bike_model_speed_count = 18
+      bc.bike_model_wheel_size_inch = 26
+      bc.bike_model_weight_kg = 10
+      bc.bike_model_year = [2014,2015,2016].sample
+      bc.bike_model_folding_flag = [0,1].sample
+      bc.bike_model_prof_flag = [0,1].sample
+      if !BikeModel.exists?(:bike_model_code => bb.brand_code+'_'+bcl.bike_color_code+'_'+bt.bike_type_code)
+        bc.save
+      end  
+  end
+ end
+end  
+    
+  
+
+puts '------------------------'
+puts '       Available Bikemodel'
+puts '------------------------'
+bc = BikeModel.all
+tp bc
+
+
+
+
+
+
+
+
+
+#Prices
+periods = [
+  ['01.01.2000','01.06.2016'],
+  ['01.06.2016','01.09.2016'],
+  ['01.09.2016','01.01.2017'],
+  ['01.01.2017','01.01.2100']
+]
+
+BikeModel.all.each do |bm|
+  periods.each do |pr|
+    Val.all.each do |vl|
+        if !PricesBasePlan.exists?(:beg_date => pr , 
+                                   :bike_model_id => bm.bike_model_id,
+                                   :val_id => vl.val_id)
+        bc = PricesBasePlan.new
+        bc.beg_date = Date.parse(pr[0] + ' UTC') 
+        bc.end_date = Date.parse(pr[1] + ' UTC') - 1.second
+        bc.bike_model_id = bm.bike_model_id
+        bc.val_id = vl.val_id
+        bc.price = rand(20)+10  
+        bc.save
+      end
+    end
+  end  
+end
+
+puts '------------------------'
+puts '       Available BasePrices'
+puts '------------------------'
+bc = PricesBasePlan.all
+tp bc

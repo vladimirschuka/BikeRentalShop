@@ -159,7 +159,6 @@ CREATE TABLE dict_bike_models (
     bike_model_year integer NOT NULL,
     bike_model_folding_flag boolean DEFAULT false NOT NULL,
     bike_model_prof_flag boolean DEFAULT false NOT NULL,
-    bike_model_current_state_id integer,
     created_at timestamp without time zone DEFAULT '2017-01-08 04:08:27.991938'::timestamp without time zone,
     updated_at timestamp without time zone DEFAULT '2017-01-08 02:13:22.870837'::timestamp without time zone
 );
@@ -337,6 +336,8 @@ ALTER TABLE t_orders_lists OWNER TO postgres;
 
 CREATE TABLE t_prices_base_plans (
     id integer DEFAULT nextval('main_sequence'::regclass),
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
     bike_model_id integer,
     val_id integer,
     price double precision,
@@ -409,20 +410,39 @@ CREATE VIEW v_bike_models AS
     t1.bike_model_year,
     t1.bike_model_folding_flag,
     t1.bike_model_prof_flag,
-    t1.bike_model_current_state_id,
-    t4.bike_state_code,
-    t4.bike_state_name,
     t1.created_at,
     t1.updated_at
    FROM dict_bike_models t1,
     dict_bike_brands t2,
     dict_bike_colors t3,
-    dict_bike_states t4,
     dict_bike_types t5
-  WHERE ((t1.bike_model_brand_id = t2.brand_id) AND (t1.bike_model_type_id = t5.bike_type_id) AND (t1.bike_model_color_id = t3.bike_color_id) AND (t1.bike_model_current_state_id = t4.bike_state_id));
+  WHERE ((t1.bike_model_brand_id = t2.brand_id) AND (t1.bike_model_type_id = t5.bike_type_id) AND (t1.bike_model_color_id = t3.bike_color_id));
 
 
 ALTER TABLE v_bike_models OWNER TO postgres;
+
+--
+-- Name: v_customers_groups_membership; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW v_customers_groups_membership AS
+ SELECT t1.id,
+    t1.beg_date,
+    t1.end_date,
+    t1.customer_id,
+    t2.customer_login,
+    t2.customer_name,
+    t2.customer_surname,
+    t2.customer_last_name,
+    t1.customer_group_id,
+    t3.customer_group_code,
+    t3.customer_group_name
+   FROM ((t_customers_groups_membership t1
+     JOIN t_customers t2 ON ((t1.customer_id = t2.customer_id)))
+     JOIN t_customers_groups t3 ON ((t1.customer_group_id = t3.customer_group_id)));
+
+
+ALTER TABLE v_customers_groups_membership OWNER TO postgres;
 
 --
 -- Name: dict_bike_brands PK_dict_bike_brands_id; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -491,13 +511,6 @@ CREATE INDEX "FKI_model_brand_id" ON dict_bike_models USING btree (bike_model_br
 --
 
 CREATE INDEX "FKI_model_color_id" ON dict_bike_models USING btree (bike_model_color_id);
-
-
---
--- Name: FKI_model_current_state_id; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX "FKI_model_current_state_id" ON dict_bike_models USING btree (bike_model_current_state_id);
 
 
 --
@@ -613,14 +626,6 @@ ALTER TABLE ONLY dict_bike_models
 
 ALTER TABLE ONLY dict_bike_models
     ADD CONSTRAINT "FK_model_color_id" FOREIGN KEY (bike_model_color_id) REFERENCES dict_bike_colors(bike_color_id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: dict_bike_models FK_model_current_state_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY dict_bike_models
-    ADD CONSTRAINT "FK_model_current_state_id" FOREIGN KEY (bike_model_current_state_id) REFERENCES dict_bike_states(bike_state_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

@@ -4,6 +4,7 @@ require 'pg'
 require 'active_record'
 require 'yaml'
 require 'table_print'
+require 'Date'
 
 
 dbparams = YAML.load_file('dbconfig/config.yml')['dbconfiguration']
@@ -61,6 +62,12 @@ end
 class CustomersGroupsMembership<ActiveRecord::Base
   self.table_name = 't_customers_groups_membership'
 end
+
+class PricesBasePlan<ActiveRecord::Base
+  self.table_name = 't_prices_base_plans'
+end
+
+
 
 
 
