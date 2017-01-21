@@ -238,13 +238,6 @@ bc = BikeModel.all
 tp bc
 
 
-
-
-
-
-
-
-
 #Prices
 periods = [
   ['01.01.2000','01.06.2016'],
@@ -256,12 +249,12 @@ periods = [
 BikeModel.all.each do |bm|
   periods.each do |pr|
     Val.all.each do |vl|
-        if !PricesBasePlan.exists?(:beg_date => pr , 
+        if !PricesBasePlan.exists?(:beg_date => Date.parse(pr[0]) , 
                                    :bike_model_id => bm.bike_model_id,
                                    :val_id => vl.val_id)
         bc = PricesBasePlan.new
-        bc.beg_date = Date.parse(pr[0] + ' UTC') 
-        bc.end_date = Date.parse(pr[1] + ' UTC') - 1.second
+        bc.beg_date = Date.parse(pr[0]) 
+        bc.end_date = Date.parse(pr[1]) - 1.second
         bc.bike_model_id = bm.bike_model_id
         bc.val_id = vl.val_id
         bc.price = rand(20)+10  
@@ -275,4 +268,31 @@ puts '------------------------'
 puts '       Available BasePrices'
 puts '------------------------'
 bc = PricesBasePlan.all
+tp bc
+
+
+
+#Booking State
+
+states = [
+  ['new','New'],
+  ['canceled','Canceled'],
+  ['confirmed','Confirmed'],
+  ['completed','Completed']
+  
+]
+
+states.each do |c|
+  if !BookingState.exists?(:booking_state_code => c[0])
+    bc = BookingState.new
+    bc.booking_state_code = c[0]
+    bc.booking_state_name = c[1]
+    bc.save
+  end 
+end
+
+puts '------------------------'
+puts '       Available Booking State'
+puts '------------------------'
+bc = BookingState.all
 tp bc

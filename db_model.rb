@@ -47,7 +47,7 @@ class BikeModel < ActiveRecord::Base
 end
 
 class Val <ActiveRecord::Base
-  self.table_name = 'dict_vals'
+  self.table_name = 'dict_currencies'
 end
 
 
@@ -65,6 +65,10 @@ end
 
 class PricesBasePlan<ActiveRecord::Base
   self.table_name = 't_prices_base_plans'
+end
+
+class BookingState<ActiveRecord::Base
+  self.table_name = 'dict_booking_states'
 end
 
 

@@ -115,11 +115,11 @@ SET default_with_oids = false;
 
 CREATE TABLE dict_bike_brands (
     brand_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    brand_code character varying(100) NOT NULL,
-    brand_name character varying(100) NOT NULL,
-    brand_dscr character varying(4000) NOT NULL,
+    brand_code character varying(250) NOT NULL,
+    brand_name character varying(250) NOT NULL,
+    brand_dscr text NOT NULL,
     brand_prof_flag boolean DEFAULT false,
-    brand_country character varying(100),
+    brand_country character varying(150),
     created_at timestamp without time zone DEFAULT '2017-01-06 21:23:45.33063'::timestamp without time zone NOT NULL,
     updated_at timestamp without time zone DEFAULT '2017-01-06 21:23:45.33063'::timestamp without time zone NOT NULL
 );
@@ -148,8 +148,8 @@ ALTER TABLE dict_bike_colors OWNER TO postgres;
 
 CREATE TABLE dict_bike_models (
     bike_model_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    bike_model_code character varying(100) NOT NULL,
-    bike_model_name character varying(100) NOT NULL,
+    bike_model_code character varying(250) NOT NULL,
+    bike_model_name character varying(250) NOT NULL,
     bike_model_brand_id integer NOT NULL,
     bike_model_type_id integer NOT NULL,
     bike_model_color_id integer NOT NULL,
@@ -187,8 +187,8 @@ ALTER TABLE dict_bike_states OWNER TO postgres;
 
 CREATE TABLE dict_bike_types (
     bike_type_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    bike_type_code character varying(100),
-    bike_type_name character varying(100),
+    bike_type_code character varying(250),
+    bike_type_name character varying(250),
     created_at timestamp without time zone DEFAULT '2017-01-07 01:34:25.79555'::timestamp without time zone NOT NULL,
     updated_at timestamp without time zone DEFAULT '2017-01-07 01:34:25.79555'::timestamp without time zone NOT NULL
 );
@@ -197,11 +197,26 @@ CREATE TABLE dict_bike_types (
 ALTER TABLE dict_bike_types OWNER TO postgres;
 
 --
--- Name: dict_vals; Type: TABLE; Schema: public; Owner: postgres
+-- Name: dict_booking_states; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE dict_vals (
-    val_id integer DEFAULT nextval('main_sequence'::regclass),
+CREATE TABLE dict_booking_states (
+    booking_state_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    booking_state_code character varying(250),
+    booking_state_name character varying(250),
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE dict_booking_states OWNER TO postgres;
+
+--
+-- Name: dict_currencies; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dict_currencies (
+    val_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
     val_code character varying(100),
     val_name character varying(100),
     created_at timestamp without time zone DEFAULT now(),
@@ -209,7 +224,7 @@ CREATE TABLE dict_vals (
 );
 
 
-ALTER TABLE dict_vals OWNER TO postgres;
+ALTER TABLE dict_currencies OWNER TO postgres;
 
 --
 -- Name: t_bikes; Type: TABLE; Schema: public; Owner: postgres
@@ -234,7 +249,7 @@ ALTER TABLE t_bikes OWNER TO postgres;
 --
 
 CREATE TABLE t_bikes_states (
-    id integer DEFAULT nextval('main_sequence'::regclass),
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
     bike_id integer,
     bike_state_id integer,
     bike_state_date timestamp without time zone
@@ -244,12 +259,46 @@ CREATE TABLE t_bikes_states (
 ALTER TABLE t_bikes_states OWNER TO postgres;
 
 --
+-- Name: t_booking; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_booking (
+    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    booking_time timestamp without time zone,
+    booking_code character varying(250),
+    customer_id integer,
+    booking_state_id integer,
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_booking OWNER TO postgres;
+
+--
+-- Name: t_booking_consist; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_booking_consist (
+    id integer NOT NULL,
+    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    bike_model_id integer,
+    period_beg_date timestamp without time zone,
+    period_end_date timestamp without time zone,
+    bikes_count integer,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_booking_consist OWNER TO postgres;
+
+--
 -- Name: t_customers; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE t_customers (
-    customer_id integer DEFAULT nextval('main_sequence'::regclass),
-    customer_login character varying(100),
+    customer_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    customer_login character varying(250),
     customer_password character varying(1000),
     customer_name character varying(200),
     customer_surname character varying(200),
@@ -272,7 +321,7 @@ CREATE TABLE t_customers_groups (
     customer_group_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
     customer_group_code character varying(100),
     customer_group_name character varying,
-    customer_group_dscr character varying,
+    customer_group_dscr text,
     created_at timestamp without time zone DEFAULT now(),
     update_at timestamp without time zone DEFAULT now()
 );
@@ -303,7 +352,7 @@ ALTER TABLE t_customers_groups_membership OWNER TO postgres;
 
 CREATE TABLE t_orders (
     order_id integer DEFAULT nextval('main_sequence'::regclass),
-    order_code character varying(100),
+    order_code character varying(250),
     customer_id integer,
     canceled_flag boolean DEFAULT false,
     created_at timestamp without time zone DEFAULT now(),
@@ -445,6 +494,62 @@ CREATE VIEW v_customers_groups_membership AS
 ALTER TABLE v_customers_groups_membership OWNER TO postgres;
 
 --
+-- Name: t_bikes_states PK_bike_states_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_bikes_states
+    ADD CONSTRAINT "PK_bike_states_id" PRIMARY KEY (id);
+
+
+--
+-- Name: t_booking_consist PK_booking_consist; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_consist
+    ADD CONSTRAINT "PK_booking_consist" PRIMARY KEY (id);
+
+
+--
+-- Name: t_booking PK_booking_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking
+    ADD CONSTRAINT "PK_booking_id" PRIMARY KEY (booking_id);
+
+
+--
+-- Name: dict_booking_states PK_booking_state_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dict_booking_states
+    ADD CONSTRAINT "PK_booking_state_id" PRIMARY KEY (booking_state_id);
+
+
+--
+-- Name: dict_currencies PK_currencies_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dict_currencies
+    ADD CONSTRAINT "PK_currencies_id" PRIMARY KEY (val_id);
+
+
+--
+-- Name: t_customers_groups PK_customer_group; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_customers_groups
+    ADD CONSTRAINT "PK_customer_group" PRIMARY KEY (customer_group_id);
+
+
+--
+-- Name: t_customers PK_customer_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_customers
+    ADD CONSTRAINT "PK_customer_id" PRIMARY KEY (customer_id);
+
+
+--
 -- Name: dict_bike_brands PK_dict_bike_brands_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -485,6 +590,14 @@ ALTER TABLE ONLY dict_bike_types
 
 
 --
+-- Name: t_customers_groups_membership PK_membership_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_customers_groups_membership
+    ADD CONSTRAINT "PK_membership_id" PRIMARY KEY (id);
+
+
+--
 -- Name: t_bikes PK_t_bikes_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -493,10 +606,74 @@ ALTER TABLE ONLY t_bikes
 
 
 --
+-- Name: dict_currencies UNIQ_val_code; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dict_currencies
+    ADD CONSTRAINT "UNIQ_val_code" UNIQUE (val_code);
+
+
+--
 -- Name: FKI_bike_model_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "FKI_bike_model_id" ON t_bikes USING btree (bike_model_id);
+
+
+--
+-- Name: FKI_bike_state; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_bike_state" ON t_bikes_states USING btree (bike_state_id);
+
+
+--
+-- Name: FKI_bikes_states_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_bikes_states_id" ON t_bikes USING btree (bike_current_state_id);
+
+
+--
+-- Name: FKI_booking_bike_model_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_booking_bike_model_id" ON t_booking_consist USING btree (bike_model_id);
+
+
+--
+-- Name: FKI_booking_customer_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_booking_customer_id" ON t_booking USING btree (customer_id);
+
+
+--
+-- Name: FKI_booking_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_booking_id" ON t_booking_consist USING btree (booking_id);
+
+
+--
+-- Name: FKI_booking_state; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_booking_state" ON t_booking USING btree (booking_state_id);
+
+
+--
+-- Name: FKI_customer_group_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_customer_group_id" ON t_customers_groups_membership USING btree (customer_group_id);
+
+
+--
+-- Name: FKI_customer_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_customer_id" ON t_customers_groups_membership USING btree (customer_id);
 
 
 --
@@ -518,6 +695,55 @@ CREATE INDEX "FKI_model_color_id" ON dict_bike_models USING btree (bike_model_co
 --
 
 CREATE INDEX "FKI_model_type_id" ON dict_bike_models USING btree (bike_model_type_id);
+
+
+--
+-- Name: PK_idx_bikes_states; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_bikes_states" ON t_bikes_states USING btree (id);
+
+
+--
+-- Name: PK_idx_booking_consist; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "PK_idx_booking_consist" ON t_booking_consist USING btree (id);
+
+
+--
+-- Name: PK_idx_booking_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_booking_id" ON t_booking USING btree (booking_id);
+
+
+--
+-- Name: PK_idx_booking_state_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_booking_state_id" ON dict_booking_states USING btree (booking_state_id);
+
+
+--
+-- Name: PK_idx_currencies_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_currencies_id" ON dict_currencies USING btree (val_id);
+
+
+--
+-- Name: PK_idx_customer_group; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_customer_group" ON t_customers_groups USING btree (customer_group_id);
+
+
+--
+-- Name: PK_idx_customer_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_customer_id" ON t_customers USING btree (customer_id);
 
 
 --
@@ -556,10 +782,24 @@ CREATE UNIQUE INDEX "PK_idx_dict_bike_types_id" ON dict_bike_types USING btree (
 
 
 --
+-- Name: PK_idx_membership_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "PK_idx_membership_id" ON t_customers_groups_membership USING btree (id);
+
+
+--
 -- Name: PK_idx_t_bikes_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX "PK_idx_t_bikes_id" ON t_bikes USING btree (bike_id);
+
+
+--
+-- Name: UNIQ_booking_state_code; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "UNIQ_booking_state_code" ON dict_booking_states USING btree (booking_state_code);
 
 
 --
@@ -605,11 +845,75 @@ CREATE UNIQUE INDEX idx_uniq_dict_bike_colors_code ON dict_bike_colors USING btr
 
 
 --
+-- Name: t_bikes FK_bike_current_state; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_bikes
+    ADD CONSTRAINT "FK_bike_current_state" FOREIGN KEY (bike_current_state_id) REFERENCES t_bikes_states(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: t_bikes FK_bike_model_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY t_bikes
     ADD CONSTRAINT "FK_bike_model_id" FOREIGN KEY (bike_model_id) REFERENCES dict_bike_models(bike_model_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_bikes_states FK_bike_state; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_bikes_states
+    ADD CONSTRAINT "FK_bike_state" FOREIGN KEY (bike_state_id) REFERENCES dict_bike_states(bike_state_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking_consist FK_booking_bike_model_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_consist
+    ADD CONSTRAINT "FK_booking_bike_model_id" FOREIGN KEY (bike_model_id) REFERENCES dict_bike_models(bike_model_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking FK_booking_customer_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking
+    ADD CONSTRAINT "FK_booking_customer_id" FOREIGN KEY (customer_id) REFERENCES t_customers(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking_consist FK_booking_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_consist
+    ADD CONSTRAINT "FK_booking_id" FOREIGN KEY (booking_id) REFERENCES t_booking(booking_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking FK_booking_state; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking
+    ADD CONSTRAINT "FK_booking_state" FOREIGN KEY (booking_state_id) REFERENCES dict_booking_states(booking_state_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_customers_groups_membership FK_customer_group_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_customers_groups_membership
+    ADD CONSTRAINT "FK_customer_group_id" FOREIGN KEY (customer_group_id) REFERENCES t_customers_groups(customer_group_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_customers_groups_membership FK_customer_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_customers_groups_membership
+    ADD CONSTRAINT "FK_customer_id" FOREIGN KEY (customer_id) REFERENCES t_customers(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
