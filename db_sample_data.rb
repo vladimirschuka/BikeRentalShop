@@ -257,7 +257,7 @@ BikeModel.all.each do |bm|
         bc.end_date = Date.parse(pr[1]) - 1.second
         bc.bike_model_id = bm.bike_model_id
         bc.val_id = vl.val_id
-        bc.price = rand(20)+10  
+        bc.price = rand(5)+10  
         bc.save
       end
     end
@@ -296,3 +296,52 @@ puts '       Available Booking State'
 puts '------------------------'
 bc = BookingState.all
 tp bc
+
+#PricesPlan
+
+priceplan = [
+  ['base','Base price plan','This is main price for bike.',1],
+  ['vip','Discount for VIP','This is discount for VIP costomers',1],
+  ['holiday','Discount for Holiday','Discount for holidays.',0],
+  ['count5', 'Discount for 5 bike','If customer booking 5 bikes.',0],
+  ['period10','Discount for 10 days','If customer have booking for 10 days ',0]
+]
+
+priceplan.each do |c|
+  if !PricesPlan.exists?(:price_code => c[0])
+    bc = PricesPlan.new
+    bc.price_code = c[0]
+    bc.price_name = c[1]
+    bc.price_dscr = c[2]
+    bc.price_sum_flag = c[3]
+    bc.save
+  end 
+end
+
+puts '------------------------'
+puts '       Available Booking State'
+puts '------------------------'
+bc = PricesPlan.all
+tp bc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

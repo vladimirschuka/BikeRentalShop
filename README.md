@@ -17,6 +17,10 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 
 * dump.sql - schema and sample data
 
-	
+4. ruby scripts:
+
+* db_model.rb - ORM or ruby
+
+* db_sample_data.rb - ruby script with sample data	
 
 ## How to use it

@@ -63,6 +63,10 @@ class CustomersGroupsMembership<ActiveRecord::Base
   self.table_name = 't_customers_groups_membership'
 end
 
+class PricesPlan<ActiveRecord::Base
+  self.table_name = 't_prices_plans'
+end
+
 class PricesBasePlan<ActiveRecord::Base
   self.table_name = 't_prices_base_plans'
 end
