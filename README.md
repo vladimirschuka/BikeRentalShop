@@ -19,6 +19,4 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 
 	
 
-## Postgresql
-
-## Ruby scripts for sample data and examples
+## How to use it
