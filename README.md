@@ -19,7 +19,7 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 
 4. ruby scripts:
 
-* db_model.rb - ORM or ruby
+* db_model.rb - ORM by ruby
 
 * db_sample_data.rb - ruby script with sample data	
 
