@@ -103,10 +103,10 @@ vals = [
 ]
 
 vals.each{ |c|
-  if !Val.exists?(:val_code => c[0])
+  if !Val.exists?(:currency_code => c[0])
     bc = Val.new
-    bc.val_code = c[0]
-    bc.val_name = c[1]
+    bc.currency_code = c[0]
+    bc.currency_name = c[1]
     bc.save
   end  
 }
@@ -186,7 +186,7 @@ customers_groups_membership = [
 
 customers_groups_membership.each{ |c|
   if !CustomersGroupsMembership.exists?(:beg_date => c[0] , 
-                                        :customer_id => Customer.where(customer_login:  c[2]).first.customer_id,
+                                        :customer_id => Customer.where(customer_login:  c[2]).first.customer_id ,
                                         :customer_group_id => CustomersGroup.where(customer_group_code:  c[3]).first.customer_group_id)
     bc = CustomersGroupsMembership.new
     bc.beg_date = c[0]
@@ -235,39 +235,6 @@ puts '------------------------'
 puts '       Available Bikemodel'
 puts '------------------------'
 bc = BikeModel.all
-tp bc
-
-
-#Prices
-periods = [
-  ['01.01.2000','01.06.2016'],
-  ['01.06.2016','01.09.2016'],
-  ['01.09.2016','01.01.2017'],
-  ['01.01.2017','01.01.2100']
-]
-
-BikeModel.all.each do |bm|
-  periods.each do |pr|
-    Val.all.each do |vl|
-        if !PricesBasePlan.exists?(:beg_date => Date.parse(pr[0]) , 
-                                   :bike_model_id => bm.bike_model_id,
-                                   :val_id => vl.val_id)
-        bc = PricesBasePlan.new
-        bc.beg_date = Date.parse(pr[0]) 
-        bc.end_date = Date.parse(pr[1]) - 1.second
-        bc.bike_model_id = bm.bike_model_id
-        bc.val_id = vl.val_id
-        bc.price = rand(5)+10  
-        bc.save
-      end
-    end
-  end  
-end
-
-puts '------------------------'
-puts '       Available BasePrices'
-puts '------------------------'
-bc = PricesBasePlan.all
 tp bc
 
 
@@ -324,6 +291,47 @@ puts '------------------------'
 bc = PricesPlan.all
 tp bc
 
+
+#Prices
+periods = [
+  ['01.01.2000','01.06.2016'],
+  ['01.06.2016','01.09.2016'],
+  ['01.09.2016','01.01.2017'],
+  ['01.01.2017','01.01.2100']
+]
+
+BikeModel.all.each do |bm|
+  periods.each do |pr|
+    Val.all.each do |vl|
+        if !PricesBasePlan.exists?(:beg_date => Date.parse(pr[0]) , 
+                                   :bike_model_id => bm.bike_model_id,
+                                   :currency_id => vl.currency_id)
+        bc = PricesBasePlan.new
+        bc.price_plan_id = PricesPlan.where(:price_code => 'base').first.id
+        bc.beg_date = Date.parse(pr[0]) 
+        bc.end_date = Date.parse(pr[1]) - 1.second
+        bc.bike_model_id = bm.bike_model_id
+        bc.currency_id = vl.currency_id
+        bc.price = rand(5)+10  
+        bc.save
+      end
+    end
+  end  
+end
+
+puts '------------------------'
+puts '       Available BasePrices'
+puts '------------------------'
+bc = PricesBasePlan.all
+tp bc
+
+
+
+#PricesSpecialsConditions
+
+specialconditions [
+  []
+]
 
 
 

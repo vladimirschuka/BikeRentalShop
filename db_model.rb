@@ -9,35 +9,40 @@ require 'Date'
 
 dbparams = YAML.load_file('dbconfig/config.yml')['dbconfiguration']
 
-ActiveRecord::Base.establish_connection(
-  :adapter => dbparams['adapter'],
-  :host => dbparams['host'],
-  :database => dbparams['database'],
-  :username => dbparams['username'],
-  :password => dbparams['password']
-)
+class AR < ActiveRecord::Base
+ 
+end
 
-class BikeBrand < ActiveRecord::Base
+
+AR.establish_connection(
+      :adapter => dbparams['adapter'],
+      :host => dbparams['host'],
+      :database => dbparams['database'],
+      :username => dbparams['username'],
+      :password => dbparams['password']
+    )
+
+class BikeBrand < AR
   self.table_name = 'dict_bike_brands'
   has_many :bikemodel, :class_name => 'BikeModel', :primary_key => 'brand_id', :foreign_key => 'bike_model_brand_id'
 end
 
-class BikeColor < ActiveRecord::Base
+class BikeColor < AR
   self.table_name = 'dict_bike_colors'
   has_many :bikemodel, :class_name => 'BikeModel', :primary_key => 'bike_color_id', :foreign_key => 'bike_model_color_id'
 end
 
-class BikeState < ActiveRecord::Base
+class BikeState < AR
   self.table_name = 'dict_bike_states'
   has_many :bikemodel, :class_name => 'BikeModel', :primary_key => 'bike_state_id', :foreign_key => 'bike_model_current_state_id'
 end
 
-class BikeType < ActiveRecord::Base
+class BikeType < AR
   self.table_name = 'dict_bike_types'
   has_many :bikemodel, :class_name => 'BikeModel', :primary_key => 'bike_type_id', :foreign_key => 'bike_model_type_id'
 end
 
-class BikeModel < ActiveRecord::Base
+class BikeModel < AR
   self.table_name = 'dict_bike_models'
   belongs_to :bikebrand , :class_name => 'BikeBrand', :primary_key => 'brand_id', :foreign_key => 'bike_model_brand_id'
   belongs_to :bikecolor , :class_name => 'BikeColor', :primary_key => 'bike_color_id', :foreign_key => 'bike_model_color_id'
@@ -46,33 +51,39 @@ class BikeModel < ActiveRecord::Base
   
 end
 
-class Val <ActiveRecord::Base
+class Val < AR
   self.table_name = 'dict_currencies'
 end
 
 
-class Customer<ActiveRecord::Base
+class Customer < AR
   self.table_name = 't_customers'
+  self.primary_key = 'customer_id'
 end
 
-class CustomersGroup<ActiveRecord::Base
+class CustomersGroup < AR
   self.table_name = 't_customers_groups'
+  self.primary_key = 'customer_group_id'
 end
 
-class CustomersGroupsMembership<ActiveRecord::Base
+class CustomersGroupsMembership < AR
   self.table_name = 't_customers_groups_membership'
 end
 
-class PricesPlan<ActiveRecord::Base
+class PricesPlan < AR
   self.table_name = 't_prices_plans'
 end
 
-class PricesBasePlan<ActiveRecord::Base
+class PricesBasePlan < AR
   self.table_name = 't_prices_base_plans'
 end
 
-class BookingState<ActiveRecord::Base
+class BookingState < AR
   self.table_name = 'dict_booking_states'
+end
+
+class PricesSpecialsConditions <AR
+  self.table_name = 't_prices_specials_conditions'
 end
 
 
