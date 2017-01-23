@@ -237,6 +237,21 @@ CREATE TABLE dict_bike_types (
 ALTER TABLE dict_bike_types OWNER TO postgres;
 
 --
+-- Name: dict_booking_order_states; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dict_booking_order_states (
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    state_code character varying(250),
+    state_name character varying(250),
+    order_state integer,
+    finish_state_flag boolean
+);
+
+
+ALTER TABLE dict_booking_order_states OWNER TO postgres;
+
+--
 -- Name: dict_booking_states; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -333,6 +348,21 @@ CREATE TABLE t_booking_consist (
 
 
 ALTER TABLE t_booking_consist OWNER TO postgres;
+
+--
+-- Name: t_booking_orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_booking_orders (
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    booking_id integer,
+    bike_id integer,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_booking_orders OWNER TO postgres;
 
 --
 -- Name: t_booking_prices; Type: TABLE; Schema: public; Owner: postgres
@@ -704,6 +734,14 @@ COPY dict_bike_types (bike_type_id, bike_type_code, bike_type_name, created_at, 
 
 
 --
+-- Data for Name: dict_booking_order_states; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY dict_booking_order_states (id, state_code, state_name, order_state, finish_state_flag) FROM stdin;
+\.
+
+
+--
 -- Data for Name: dict_booking_states; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -761,6 +799,14 @@ COPY t_booking (booking_id, booking_time, booking_code, customer_id, booking_sta
 --
 
 COPY t_booking_consist (id, booking_id, bike_model_id, period_beg_date, period_end_date, bikes_count, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: t_booking_orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_booking_orders (id, booking_id, bike_id, created_at, updated_at) FROM stdin;
 \.
 
 

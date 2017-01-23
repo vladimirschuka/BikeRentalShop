@@ -242,10 +242,10 @@ tp bc
 #Booking State
 
 states = [
-  ['new','New'],
-  ['canceled','Canceled'],
-  ['confirmed','Confirmed'],
-  ['completed','Completed']
+  ['new','New',100,'0'],
+  ['canceled','Canceled',250,'1'],
+  ['confirmed','Confirmed',200,'0'],
+  ['completed','Completed',300,'1']
   
 ]
 
@@ -254,6 +254,8 @@ states.each do |c|
     bc = BookingState.new
     bc.booking_state_code = c[0]
     bc.booking_state_name = c[1]
+    bc.booking_state_order = c[2]
+    bc.booking_state_last_flag = c[3]
     bc.save
   end 
 end
@@ -327,11 +329,7 @@ tp bc
 
 
 
-#PricesSpecialsConditions
 
-specialconditions [
-  []
-]
 
 
 
