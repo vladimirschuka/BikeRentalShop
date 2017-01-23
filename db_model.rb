@@ -82,7 +82,7 @@ class BookingState < AR
   self.table_name = 'dict_booking_states'
 end
 
-class PricesSpecialsConditions <AR
+class PricesSpecialsCondition < AR
   self.table_name = 't_prices_specials_conditions'
 end
 

@@ -328,7 +328,25 @@ bc = PricesBasePlan.all
 tp bc
 
 
+#dates_Sample_date
 
+AR.connection.execute ("
+with recursive x(n) as (
+select date'2015-01-01' n 
+union all
+select n+ 1 n  from x where n <= date'2030-01-01'
+)
+insert into dict_dates
+(sys_date)
+select n 
+from x where not exists(select 1 from dict_dates where sys_date=n)
+")
+
+AR.connection.execute ("
+update dict_dates
+set holiday_flag = '1'
+where  extract(isodow from sys_date::timestamp) in (6,7)
+")
 
 
 

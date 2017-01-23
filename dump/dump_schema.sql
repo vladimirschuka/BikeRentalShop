@@ -237,21 +237,6 @@ CREATE TABLE dict_bike_types (
 ALTER TABLE dict_bike_types OWNER TO postgres;
 
 --
--- Name: dict_booking_order_states; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE dict_booking_order_states (
-    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    state_code character varying(250),
-    state_name character varying(250),
-    order_state integer,
-    finish_state_flag boolean
-);
-
-
-ALTER TABLE dict_booking_order_states OWNER TO postgres;
-
---
 -- Name: dict_booking_states; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -282,6 +267,18 @@ CREATE TABLE dict_currencies (
 
 
 ALTER TABLE dict_currencies OWNER TO postgres;
+
+--
+-- Name: dict_dates; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE dict_dates (
+    sys_date date NOT NULL,
+    holiday_flag boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE dict_dates OWNER TO postgres;
 
 --
 -- Name: t_bikes; Type: TABLE; Schema: public; Owner: postgres
@@ -491,7 +488,8 @@ CREATE TABLE t_prices_specials_conditions (
     prct_flag boolean,
     price_specials_value double precision,
     created_at timestamp without time zone DEFAULT now(),
-    updated_at timestamp without time zone DEFAULT now()
+    updated_at timestamp without time zone DEFAULT now(),
+    holiday_flag boolean
 );
 
 
@@ -578,6 +576,14 @@ ALTER TABLE ONLY t_booking
 
 
 --
+-- Name: t_booking_orders PK_booking_orders; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_orders
+    ADD CONSTRAINT "PK_booking_orders" PRIMARY KEY (id);
+
+
+--
 -- Name: t_booking_prices PK_booking_price; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -615,6 +621,14 @@ ALTER TABLE ONLY t_customers_groups
 
 ALTER TABLE ONLY t_customers
     ADD CONSTRAINT "PK_customer_id" PRIMARY KEY (customer_id);
+
+
+--
+-- Name: dict_dates PK_dates; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dict_dates
+    ADD CONSTRAINT "PK_dates" PRIMARY KEY (sys_date);
 
 
 --
@@ -769,6 +783,20 @@ CREATE INDEX "FKI_customer_id" ON t_customers_groups_membership USING btree (cus
 
 
 --
+-- Name: FKI_from_bike_to_booking_order; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_from_bike_to_booking_order" ON t_booking_orders USING btree (bike_id);
+
+
+--
+-- Name: FKI_from_booking_order_to_booking_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX "FKI_from_booking_order_to_booking_id" ON t_booking_orders USING btree (booking_id);
+
+
+--
 -- Name: FKI_model_brand_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -850,6 +878,13 @@ CREATE INDEX "PK_idx_booking_consist" ON t_booking_consist USING btree (id);
 --
 
 CREATE UNIQUE INDEX "PK_idx_booking_id" ON t_booking USING btree (booking_id);
+
+
+--
+-- Name: PK_idx_booking_orders; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_booking_orders" ON t_booking_orders USING btree (id);
 
 
 --
@@ -941,6 +976,13 @@ CREATE UNIQUE INDEX "PK_idx_prices_plans" ON t_prices_plans USING btree (id);
 --
 
 CREATE UNIQUE INDEX "PK_idx_prices_specials_conditions" ON t_prices_specials_conditions USING btree (id);
+
+
+--
+-- Name: PK_idx_sys_date; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "PK_idx_sys_date" ON dict_dates USING btree (sys_date);
 
 
 --
@@ -1083,6 +1125,22 @@ ALTER TABLE ONLY t_customers_groups_membership
 
 ALTER TABLE ONLY t_customers_groups_membership
     ADD CONSTRAINT "FK_customer_id" FOREIGN KEY (customer_id) REFERENCES t_customers(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking_orders FK_from_bike_to_booking_order; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_orders
+    ADD CONSTRAINT "FK_from_bike_to_booking_order" FOREIGN KEY (bike_id) REFERENCES t_bikes(bike_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: t_booking_orders FK_from_booking_order_to_booking_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY t_booking_orders
+    ADD CONSTRAINT "FK_from_booking_order_to_booking_id" FOREIGN KEY (booking_id) REFERENCES t_booking(booking_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
