@@ -86,6 +86,10 @@ class PricesSpecialsCondition < AR
   self.table_name = 't_prices_specials_conditions'
 end
 
+class Bike < AR
+  self.table_name = 't_bikes'
+end
+
 
 
 

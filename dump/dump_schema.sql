@@ -31,6 +31,41 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
+-- Name: bikestatechange(integer, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION bikestatechange(p_bike_id integer, p_bike_state_code character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+declare 
+	new_bike_state_id integer;
+begin 
+	   
+	insert into t_bikes_states 
+		(bike_id,bike_state_id,bike_state_date)
+	select p_bike_id, bike_state_id,current_timestamp
+	 from dict_bike_states where bike_state_code = p_bike_state_code and
+	 not exists (
+		 select 1 
+		 from t_bikes bk
+			inner join t_bikes_states bs on bk.bike_current_state_id = bs.id
+			inner join dict_bike_states dbs on dbs.bike_state_id = bs.bike_state_id 
+		 where bk.bike_id = p_bike_id  and dbs.bike_state_code = p_bike_state_ccode	
+		 )
+	returning bike_state_id into new_bike_state_id;
+
+	update t_bikes set bike_current_state_id = new_bike_state_id
+	where bike_id = p_bike_id;
+	
+	
+
+end;
+$$;
+
+
+ALTER FUNCTION public.bikestatechange(p_bike_id integer, p_bike_state_code character varying) OWNER TO postgres;
+
+--
 -- Name: createbike(character varying, character varying, date, double precision, character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -45,7 +80,7 @@ begin
 		(bike_id,bike_state_id,bike_state_date)
 	select new_bike_id, bike_state_id,current_timestamp
 	 from dict_bike_states where bike_state_code = p_bike_state_code
-	returning bike_state_id into new_bike_state_id;
+	returning id into new_bike_state_id;
 		
 	insert into t_bikes
 	(

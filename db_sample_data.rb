@@ -216,9 +216,9 @@ BikeBrand.all.each do |bb|
       bc.bike_model_brand_id = bb.brand_id
       bc.bike_model_type_id = bt.bike_type_id
       bc.bike_model_color_id = bcl.bike_color_id
-      bc.bike_model_speed_count = 18
-      bc.bike_model_wheel_size_inch = 26
-      bc.bike_model_weight_kg = 10
+      bc.bike_model_speed_count = bt.bike_type_code == 'child' ?   1 : 18
+      bc.bike_model_wheel_size_inch = bt.bike_type_code == 'child' ? [14,16,20].sample : [24,26].sample
+      bc.bike_model_weight_kg = bt.bike_type_code == 'child' ? 10 : 14
       bc.bike_model_year = [2014,2015,2016].sample
       bc.bike_model_folding_flag = [0,1].sample
       bc.bike_model_prof_flag = [0,1].sample
@@ -348,8 +348,38 @@ set holiday_flag = '1'
 where  extract(isodow from sys_date::timestamp) in (6,7)
 ")
 
+#CreateBikes
+#createbike(
+ #   p_bike_inventory_number character varying,
+ #  p_bike_model_code character varying,
+ #  p_bike_use_beg_date date,
+ #  p_bike_price double precision,
+ #  p_bike_state_code character varying)
+ # md5(now()::varchar) - inventory
+
+ bikemodels_in_shop = [
+   ['giant_black_mountain','2016-01-01',120,'work'],
+   ['btwin_white_road','2016-02-23',100,'work'],
+   ['btwin_red_child','2016-03-02',70,'work'],
+   ['trek_blue_road','2015-07-12',50,'work']
+   
+ ]
 
 
+ 
+ bikemodels_in_shop.each do |bm|
+   if (Bike.count <100) then
+     rand(10).times{|n| AR.connection.execute("select createbike('#{rand(10000000000000).to_s(16).upcase}','#{bm[0]}', '#{bm[1]}',#{bm[2]},'#{bm[3]}')") } 
+   end
+end
+
+
+
+ puts '------------------------'
+ puts '       Available BasePrices'
+ puts '------------------------'
+ bc = Bike.all
+ tp bc
 
 
 
