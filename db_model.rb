@@ -34,7 +34,8 @@ end
 
 class BikeState < AR
   self.table_name = 'dict_bike_states'
-  has_many :bikemodel, :class_name => 'BikeModel', :primary_key => 'bike_state_id', :foreign_key => 'bike_model_current_state_id'
+  has_many :current_states , :class_name => 'BikeStates', :primary_key => 'bike_state_id', :foreign_key => 'bike_state_id'
+  
 end
 
 class BikeType < AR
@@ -46,8 +47,8 @@ class BikeModel < AR
   self.table_name = 'dict_bike_models'
   belongs_to :bikebrand , :class_name => 'BikeBrand', :primary_key => 'brand_id', :foreign_key => 'bike_model_brand_id'
   belongs_to :bikecolor , :class_name => 'BikeColor', :primary_key => 'bike_color_id', :foreign_key => 'bike_model_color_id'
-  belongs_to :bikestate , :class_name => 'BikeState', :primary_key => 'bike_state_id', :foreign_key => 'bike_model_current_state_id'
   belongs_to :biketype , :class_name => 'BikeType', :primary_key => 'bike_type_id', :foreign_key => 'bike_model_type_id'
+  has_many :bikes, :class_name => 'Bike', :primary_key => 'bike_model_id', :foreign_key => 'bike_model_id'
   
 end
 
@@ -88,8 +89,24 @@ end
 
 class Bike < AR
   self.table_name = 't_bikes'
+  self.primary_key = 'bike_id'
+  belongs_to :bikestates, :class_name => 'BikesStates', :primary_key => 'id', :foreign_key => 'bike_current_state_id'
+  belongs_to :bikemodel, :class_name => 'BikeModel', :primary_key => 'bike_model_id', :foreign_key => 'bike_model_id'
+  
+  
+  has_one  :dict_bike_state ,  :through => :bikestates
+  
+  scope :state ,  -> (state) {joins(:dict_bike_state).where('dict_bike_states.bike_state_code =?' , state)}
+  
+  
+  
 end
 
+class BikesStates < AR
+  self.table_name = 't_bikes_states'
+  has_many :bikes, :class_name => 'Bike', :primary_key => 'id', :foreign_key => 'bike_current_state_id'
+  belongs_to :dict_bike_state, :class_name => 'BikeState', :primary_key => 'bike_state_id', :foreign_key => 'bike_state_id'
+end
 
 
 

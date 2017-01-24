@@ -1,6 +1,8 @@
 require "./db_model.rb"
 
 
+class SampleData
+  def self.addData
 # Colors
 colors = [
   ['black','Black'],
@@ -368,7 +370,7 @@ where  extract(isodow from sys_date::timestamp) in (6,7)
 
  
  bikemodels_in_shop.each do |bm|
-   if (Bike.count <100) then
+   if (Bike.count <50) then
      rand(10).times{|n| AR.connection.execute("select createbike('#{rand(10000000000000).to_s(16).upcase}','#{bm[0]}', '#{bm[1]}',#{bm[2]},'#{bm[3]}')") } 
    end
 end
@@ -382,8 +384,15 @@ end
  tp bc
 
 
+ #some_bike is broken
+ 
+ bc.each do |x| 
+  if rand(10)>8 then AR.connection.execute("select bikestatechange( #{x.bike_id},'broken')") end     
+ end
 
 
+end
+end
 
 
 
