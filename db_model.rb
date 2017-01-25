@@ -60,6 +60,7 @@ end
 class Customer < AR
   self.table_name = 't_customers'
   self.primary_key = 'customer_id'
+  
 end
 
 class CustomersGroup < AR
@@ -79,9 +80,7 @@ class PricesBasePlan < AR
   self.table_name = 't_prices_base_plans'
 end
 
-class BookingState < AR
-  self.table_name = 'dict_booking_states'
-end
+
 
 class PricesSpecialsCondition < AR
   self.table_name = 't_prices_specials_conditions'
@@ -107,6 +106,17 @@ class BikesStates < AR
   has_many :bikes, :class_name => 'Bike', :primary_key => 'id', :foreign_key => 'bike_current_state_id'
   belongs_to :dict_bike_state, :class_name => 'BikeState', :primary_key => 'bike_state_id', :foreign_key => 'bike_state_id'
 end
+
+
+class BookingState < AR
+  self.table_name = 'dict_booking_states'
+end
+
+class Booking < AR
+  self.table_name = 't_booking'
+end
+
+
 
 
 
