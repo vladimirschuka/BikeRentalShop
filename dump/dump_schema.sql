@@ -50,12 +50,12 @@ begin
 		 from t_bikes bk
 			inner join t_bikes_states bs on bk.bike_current_state_id = bs.id
 			inner join dict_bike_states dbs on dbs.bike_state_id = bs.bike_state_id 
-		 where bk.bike_id = p_bike_id  and dbs.bike_state_code = p_bike_state_ccode	
+		 where bk.bike_id = p_bike_id  and dbs.bike_state_code = p_bike_state_code	
 		 )
-	returning bike_state_id into new_bike_state_id;
+	returning id into new_bike_state_id;
 
 	update t_bikes set bike_current_state_id = new_bike_state_id
-	where bike_id = p_bike_id;
+	where bike_id = p_bike_id and new_bike_state_id is not null;
 	
 	
 
@@ -104,6 +104,46 @@ $$;
 
 
 ALTER FUNCTION public.createbike(p_bike_inventory_number character varying, p_bike_model_code character varying, p_bike_use_beg_date date, p_bike_price double precision, p_bike_state_code character varying) OWNER TO postgres;
+
+--
+-- Name: createbooking(character varying, integer, character varying, timestamp without time zone, timestamp without time zone, integer, timestamp without time zone, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION createbooking(p_booking_code character varying, p_customer_id integer, p_bike_model_code character varying, p_period_beg_date timestamp without time zone, p_period_end_date timestamp without time zone, p_bikes_count integer, p_booking_time timestamp without time zone DEFAULT now(), p_booking_state_code character varying DEFAULT 'new'::character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	new_booking_id INTEGER;
+begin
+
+	if exists(select 1 from t_booking where booking_code = p_booking_code) THEN
+		insert into t_booking
+			(booking_time,
+			 booking_code,
+			 customer_id,
+			 booking_state_id)
+		select 	p_booking_time,
+						p_booking_code,
+						p_customer_id,
+						t1.booking_state_id
+		from  dict_booking_states t1
+		WHERE t1.booking_state_code = p_booking_state_code
+		RETURNING booking_id into new_booking_id;
+	ELSE
+		select booking_id into new_booking_id from t_booking where booking_code = p_booking_code;
+	END IF;
+
+	insert into t_booking_consist
+		(booking_id, bike_model_id, period_beg_date, period_end_date, bikes_count)
+	select new_booking_id, t1.bike_model_id, p_period_beg_date,p_period_end_date,p_bikes_count
+	from dict_bike_models t1
+	where t1.bike_model_code = p_bike_model_code;
+
+end;
+$$;
+
+
+ALTER FUNCTION public.createbooking(p_booking_code character varying, p_customer_id integer, p_bike_model_code character varying, p_period_beg_date timestamp without time zone, p_period_end_date timestamp without time zone, p_bikes_count integer, p_booking_time timestamp without time zone, p_booking_state_code character varying) OWNER TO postgres;
 
 --
 -- Name: p_save_bike_model(integer, character varying, character varying, character varying, character varying, character varying, integer, double precision, integer, double precision, boolean, boolean, character varying); Type: FUNCTION; Schema: public; Owner: postgres
@@ -513,8 +553,8 @@ CREATE TABLE t_prices_specials_conditions (
     price_plan_id integer,
     beg_date_order timestamp without time zone,
     end_date_order timestamp without time zone,
-    pediod_beg_date timestamp without time zone,
-    pediod_end_date timestamp without time zone,
+    period_beg_date timestamp without time zone,
+    period_end_date timestamp without time zone,
     bike_model_id integer,
     customer_group_id integer,
     bike_count integer,

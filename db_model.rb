@@ -116,6 +116,9 @@ class Booking < AR
   self.table_name = 't_booking'
 end
 
+class BookingConsist < AR
+  self.table_name = 't_booking_consist'
+end
 
 
 

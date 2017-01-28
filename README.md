@@ -24,3 +24,4 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 * db_sample_data.rb - ruby script with sample data	
 
 ## How to use it
+

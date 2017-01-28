@@ -390,8 +390,99 @@ end
   if rand(10)>8 then AR.connection.execute("select bikestatechange( #{x.bike_id},'broken')") end     
  end
 
+ #Special Conditions
+ bikemodels_in_shop = [
+  ['vip',    '2001-01-01','2100-01-01','2100-01-01','2100-01-01',-1, 'vip',-1,-1,-1,1,10,-1],
+  ['holiday','2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,-1,-1,-1,0,5,1],
+  ['count5', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,5,-1,-1,1,5,-1 ] ,
+  ['period10', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,-1,240,-1,1,7,-1 ]   
+ ]
+
+ bikemodels_in_shop.each do |x|
+   
+   if PricesSpecialsCondition.count()<=4
+      bc = PricesSpecialsCondition.new
+      bc.price_plan_id = PricesPlan.find_by(price_code: x[0]).id
+      bc.beg_date_order = Date.parse(x[1])
+      bc.end_date_order = Date.parse(x[2])
+      bc.period_beg_date = Date.parse(x[3])
+      bc.period_end_date = Date.parse(x[4])
+      bc.bike_model_id = if x[5]!=-1 then BikeModel.find_by(bike_model_code: x[5]).bike_model_id else x[5] end
+      bc.customer_group_id = if x[6] !=-1 then CustomersGroup.find_by(customer_group_code: x[6]).customer_group_id else x[6] end
+      bc.bike_count = x[7]
+      bc.period_order_in_hour = x[8]
+      bc.val_id = x[9]
+      bc.prct_flag = x[10]
+      bc.price_specials_value = x[11]
+      bc.holiday_flag = x[12]
+      bc.save
+    end
+ end
 
 
+ puts '------------------------'
+ puts '       Available Special Prices'
+ puts '------------------------'
+ bc = PricesSpecialsCondition.all
+ tp bc
+ 
+ #create booking
+ #createbooking (
+ #p_booking_code character varying, 
+ #p_customer_id integer, 
+ #p_bike_model_code character varying, 
+ #p_period_beg_date timestamp without time zone, 
+ #p_period_end_date timestamp without time zone, 
+ #p_bikes_count integer, 
+ 	
+ #giant_black_mountain
+ #trek_blue_road
+ #btwin_white_road
+ #btwin_red_child
+ 
+ #vladimirschuka
+ #dmitrii
+ #scvbnm
+ #oneclient
+ 
+ 
+ booking = [
+   ['first', 'piterparker','trek_blue_road','2016-01-01','2016-01-07',1],
+   ['second','piterparker','trek_blue_road','2016-07-01','2016-07-14',1],
+   ['third','vladimirschuka','giant_black_mountain','2016-01-01','2016-01-14',2],
+   ['third','vladimirschuka','trek_blue_road','2016-01-01','2016-01-14',3],
+   ['H1H23','dmitrii','btwin_white_road','2016-09-10','2016-09-16',1],
+   ['E2E4','dmitrii','btwin_white_road','2016-10-15','2016-10-18',2],
+   ['D2D4','scvbnm','btwin_white_road','2016-09-10','2016-09-16',1],
+   ['D2D4','scvbnm','btwin_red_child','2016-11-23','2016-12-16',1],
+   ['F2F4','oneclient','giant_black_mountain','2016-11-05','2016-11-07',2]
+ ]
+ booking.each do |b|
+   booking_id = if Booking.find_by(booking_code: b[0]).nil? then -1 else Booking.find_by(booking_code: b[0]).booking_id end
+   
+   bike_model_id = BikeModel.find_by(bike_model_code: b[2]).bike_model_id
+   puts b[2] +'->' + bike_model_id.to_s
+   
+   if !BookingConsist.exists?(:booking_id => booking_id,:bike_model_id => bike_model_id)
+     customer_id = Customer.find_by(customer_login: b[1]).customer_id
+     AR.connection.execute("select createbooking( '#{b[0]}', #{customer_id},'#{b[2]}','#{b[3]}','#{b[4]}','#{b[5]}')")
+   end
+   
+ end
+ 
+
+   puts '------------------------'
+   puts '       Booking'
+   puts '------------------------'
+   bc = Booking.all
+   tp bc
+
+
+   puts '------------------------'
+   puts '       Booking Consists'
+   puts '------------------------'
+   bc = BookingConsist.all
+   tp bc
 
 end
 end
