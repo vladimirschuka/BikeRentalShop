@@ -271,7 +271,6 @@ tp bc
 #PricesPlan
 
 priceplan = [
-  ['base','Base price plan','This is main price for bike.',1],
   ['vip','Discount for VIP','This is discount for VIP costomers',1],
   ['holiday','Discount for Holiday','Discount for holidays.',0],
   ['count5', 'Discount for 5 bike','If customer booking 5 bikes.',0],
@@ -311,7 +310,6 @@ BikeModel.all.each do |bm|
                                    :bike_model_id => bm.bike_model_id,
                                    :currency_id => vl.currency_id)
         bc = PricesBasePlan.new
-        bc.price_plan_id = PricesPlan.where(:price_code => 'base').first.id
         bc.beg_date = Date.parse(pr[0]) 
         bc.end_date = Date.parse(pr[1]) - 1.second
         bc.bike_model_id = bm.bike_model_id
@@ -392,15 +390,15 @@ end
 
  #Special Conditions
  bikemodels_in_shop = [
-  ['vip',    '2001-01-01','2100-01-01','2100-01-01','2100-01-01',-1, 'vip',-1,-1,-1,1,10,-1],
-  ['holiday','2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,-1,-1,-1,0,5,1],
-  ['count5', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,5,-1,-1,1,5,-1 ] ,
-  ['period10', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',-1,-1,-1,240,-1,1,7,-1 ]   
+  ['vip',    '2001-01-01','2100-01-01','2000-01-01','2100-01-01',nil, 'vip',nil,nil,nil,1,10,nil],
+  ['holiday','2000-01-01','2100-01-01','2000-01-01','2100-01-01',nil,nil,nil,nil,nil,0,5,1],
+  ['count5', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',nil,nil,5,nil,nil,1,5,nil ] ,
+  ['period10', '2000-01-01','2100-01-01','2000-01-01','2100-01-01',nil,nil,nil,240,nil,1,7,nil ]   
  ]
 
  bikemodels_in_shop.each do |x|
    
-   if PricesSpecialsCondition.count()<=4
+   if PricesSpecialsCondition.count()<4
       bc = PricesSpecialsCondition.new
       bc.price_plan_id = PricesPlan.find_by(price_code: x[0]).id
       bc.beg_date_order = Date.parse(x[1])
@@ -463,7 +461,7 @@ end
    bike_model_id = BikeModel.find_by(bike_model_code: b[2]).bike_model_id
    puts b[2] +'->' + bike_model_id.to_s
    
-   if !BookingConsist.exists?(:booking_id => booking_id,:bike_model_id => bike_model_id)
+   if !BookingContent.exists?(:booking_id => booking_id,:bike_model_id => bike_model_id)
      customer_id = Customer.find_by(customer_login: b[1]).customer_id
      AR.connection.execute("select createbooking( '#{b[0]}', #{customer_id},'#{b[2]}','#{b[3]}','#{b[4]}','#{b[5]}')")
    end
@@ -481,7 +479,7 @@ end
    puts '------------------------'
    puts '       Booking Consists'
    puts '------------------------'
-   bc = BookingConsist.all
+   bc = BookingContent.all
    tp bc
 
 end

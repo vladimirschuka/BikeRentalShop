@@ -73,11 +73,11 @@ class CustomersGroupsMembership < AR
 end
 
 class PricesPlan < AR
-  self.table_name = 't_prices_plans'
+  self.table_name = 'dict_prices_discounts'
 end
 
 class PricesBasePlan < AR
-  self.table_name = 't_prices_base_plans'
+  self.table_name = 't_prices'
 end
 
 
@@ -116,8 +116,8 @@ class Booking < AR
   self.table_name = 't_booking'
 end
 
-class BookingConsist < AR
-  self.table_name = 't_booking_consist'
+class BookingContent < AR
+  self.table_name = 't_booking_contents'
 end
 
 
