@@ -477,7 +477,7 @@ end
 
 
    puts '------------------------'
-   puts '       Booking Consists'
+   puts '       Booking Contents'
    puts '------------------------'
    bc = BookingContent.all
    tp bc
