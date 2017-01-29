@@ -67,7 +67,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="3"/>
+				<^level value="4"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -113,7 +113,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="1"/>
+				<^level value="2"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -136,7 +136,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="8"/>
+				<^level value="9"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -159,7 +159,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="7"/>
+				<^level value="8"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -182,7 +182,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="9"/>
+				<^level value="1"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -192,8 +192,8 @@
 				<^uniques value="0"/>
 				<back_color value="fb645b"/>
 				<name value="Table15"/>
-				<position value="1279;1708"/>
-				<size value="351;302"/>
+				<position value="1269;1707"/>
+				<size value="348;302"/>
 				<sort_fields value="1"/>
 			</Properties>
 			<Type value="Table"/>
@@ -205,7 +205,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="6"/>
+				<^level value="7"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -228,7 +228,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="5"/>
+				<^level value="6"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -251,7 +251,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="4"/>
+				<^level value="5"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -274,7 +274,7 @@
 				<^group value="-1"/>
 				<^height value="-1"/>
 				<^indexes value="0"/>
-				<^level value="2"/>
+				<^level value="3"/>
 				<^links value="0"/>
 				<^lock value="0"/>
 				<^methods value="0"/>
@@ -484,8 +484,8 @@
 		<PageToolbarRB value="0"/>
 		<PageToolbarRight value="0"/>
 		<ScrollX value="0"/>
-		<ScrollY value="8"/>
-		<Selection value="VGFibGUxMA=="/>
+		<ScrollY value="0"/>
+		<Selection value="VGFibGUxNQ=="/>
 		<ShowAll value="1"/>
 		<ShowChanges value="1"/>
 		<ShowGL value="1"/>
@@ -568,7 +568,7 @@
 					<Changes value=""/>
 					<Properties>
 						<Cardinality value="ONE to MANY"/>
-						<Child_Table value="t_prices_specials_conditions"/>
+						<Child_Table value="t_price_special_conditions"/>
 						<Child_Table_Schema value="public"/>
 						<Comment value=""/>
 						<Foreign_Key value="price_plan_id"/>
@@ -752,7 +752,7 @@
 					<Changes value=""/>
 					<Properties>
 						<Cardinality value="ONE to MANY"/>
-						<Child_Table value="t_prices_specials_conditions"/>
+						<Child_Table value="t_price_special_conditions"/>
 						<Child_Table_Schema value="public"/>
 						<Comment value=""/>
 						<Foreign_Key value="bike_model_id"/>
@@ -798,7 +798,7 @@
 					<Changes value=""/>
 					<Properties>
 						<Cardinality value="ONE to MANY"/>
-						<Child_Table value="t_prices_specials_conditions"/>
+						<Child_Table value="t_price_special_conditions"/>
 						<Child_Table_Schema value="public"/>
 						<Comment value=""/>
 						<Foreign_Key value="customer_group_id"/>
@@ -1793,326 +1793,6 @@
 								<Comment value=""/>
 								<Default_Value value=""/>
 								<Dimensions value="0"/>
-								<Field_Position value="3"/>
-								<Indexed value="0"/>
-								<Name value="beg_date_order"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="beg_date_order"/>
-						</o1>
-						<o10>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="2"/>
-								<Indexed value="1"/>
-								<Name value="price_plan_id"/>
-								<Nullable value="1"/>
-								<Type value="Integer"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="price_plan_id"/>
-						</o10>
-						<o11>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="5"/>
-								<Indexed value="0"/>
-								<Name value="period_beg_date"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="period_beg_date"/>
-						</o11>
-						<o12>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="6"/>
-								<Indexed value="0"/>
-								<Name value="period_end_date"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="period_end_date"/>
-						</o12>
-						<o13>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="18"/>
-								<Indexed value="0"/>
-								<Name value="holiday_flag"/>
-								<Nullable value="1"/>
-								<Type value="Boolean"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="holiday_flag"/>
-						</o13>
-						<o2>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="4"/>
-								<Indexed value="0"/>
-								<Name value="end_date_order"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="end_date_order"/>
-						</o2>
-						<o3>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="7"/>
-								<Indexed value="0"/>
-								<Name value="bike_model_id"/>
-								<Nullable value="1"/>
-								<Type value="Integer"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="bike_model_id"/>
-						</o3>
-						<o4>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="8"/>
-								<Indexed value="0"/>
-								<Name value="customer_group_id"/>
-								<Nullable value="1"/>
-								<Type value="Integer"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="customer_group_id"/>
-						</o4>
-						<o5>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="9"/>
-								<Indexed value="0"/>
-								<Name value="bike_count"/>
-								<Nullable value="1"/>
-								<Type value="Integer"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="bike_count"/>
-						</o5>
-						<o6>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="10"/>
-								<Indexed value="0"/>
-								<Name value="period_order_in_hour"/>
-								<Nullable value="1"/>
-								<Type value="Integer"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="period_order_in_hour"/>
-						</o6>
-						<o7>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
-								<Field_Position value="13"/>
-								<Indexed value="0"/>
-								<Name value="price_specials_value"/>
-								<Nullable value="1"/>
-								<Type value="Double Precision"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="price_specials_value"/>
-						</o7>
-						<o8>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value="now()"/>
-								<Dimensions value="0"/>
-								<Field_Position value="14"/>
-								<Indexed value="0"/>
-								<Name value="created_at"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="created_at"/>
-						</o8>
-						<o9>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value="now()"/>
-								<Dimensions value="0"/>
-								<Field_Position value="15"/>
-								<Indexed value="0"/>
-								<Name value="updated_at"/>
-								<Nullable value="1"/>
-								<Precision value="-1"/>
-								<Type value="Timestamp Without Time Zone"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="updated_at"/>
-						</o9>
-					</Fields>
-					<Indexes>
-						<o0>
-							<Changes value=""/>
-							<Properties>
-								<Clustered value="0"/>
-								<Comment value=""/>
-								<Fields value="id	Asc	Last"/>
-								<ID value="17648"/>
-								<Name value="PK_idx_prices_specials_conditions"/>
-								<Text value='CREATE UNIQUE INDEX "PK_idx_prices_specials_conditions" ON t_prices_specials_conditions USING btree (id)'/>
-								<Type value="btree"/>
-								<Unique value="1"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<id value="17648"/>
-							<name value="PK_idx_prices_specials_conditions"/>
-						</o0>
-						<o1>
-							<Changes value=""/>
-							<Properties>
-								<Clustered value="0"/>
-								<Comment value=""/>
-								<Fields value="price_plan_id	Asc	Last"/>
-								<ID value="17654"/>
-								<Name value="FKI_prices_plans"/>
-								<Text value='CREATE INDEX "FKI_prices_plans" ON t_prices_specials_conditions USING btree (price_plan_id)'/>
-								<Type value="btree"/>
-								<Unique value="0"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<id value="17654"/>
-							<name value="FKI_prices_plans"/>
-						</o1>
-					</Indexes>
-					<Properties>
-						<Check_Count value="0"/>
-						<Comment value=""/>
-						<Field_Count value="14"/>
-						<Has_OIDs value="0"/>
-						<ID value="17447"/>
-						<Index_Count value="2"/>
-						<Link_Count value="3"/>
-						<Name value="t_prices_specials_conditions"/>
-						<Object_Owner value="postgres"/>
-						<Primary_Key value="id"/>
-						<Primary_Key_Name value="PK_t_prices_specials_conditions"/>
-						<Record_Count value="4"/>
-						<Schema value="public"/>
-						<Trigger_Count value="0"/>
-						<Unique_Count value="0"/>
-					</Properties>
-					<control value="Table15"/>
-					<delete value="0"/>
-					<id value="17447"/>
-					<name value="t_prices_specials_conditions"/>
-				</o11>
-				<o12>
-					<Changes value=""/>
-					<Fields>
-						<o0>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value="nextval('main_sequence'::regclass)"/>
-								<Dimensions value="0"/>
-								<Field_Position value="1"/>
-								<Indexed value="1"/>
-								<Name value="id"/>
-								<Nullable value="0"/>
-								<Type value="Integer"/>
-								<Unique value="1"/>
-							</Properties>
-							<control value=""/>
-							<delete value="0"/>
-							<name value="id"/>
-						</o0>
-						<o1>
-							<Changes value=""/>
-							<Properties>
-								<Collation value=""/>
-								<Comment value=""/>
-								<Default_Value value=""/>
-								<Dimensions value="0"/>
 								<Field_Position value="2"/>
 								<Indexed value="1"/>
 								<Name value="t_price_plans_id"/>
@@ -2291,8 +1971,8 @@
 					<delete value="0"/>
 					<id value="17453"/>
 					<name value="t_booking_prices"/>
-				</o12>
-				<o13>
+				</o11>
+				<o12>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -2520,8 +2200,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="16658"/>
 					<name value="t_prices"/>
-				</o13>
-				<o14>
+				</o12>
+				<o13>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -2712,8 +2392,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="17438"/>
 					<name value="dict_prices_discounts"/>
-				</o14>
-				<o15>
+				</o13>
+				<o14>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -2866,8 +2546,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="16607"/>
 					<name value="dict_currencies"/>
-				</o15>
-				<o16>
+				</o14>
+				<o15>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -3037,8 +2717,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="17879"/>
 					<name value="t_booking_orders"/>
-				</o16>
-				<o17>
+				</o15>
+				<o16>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -3229,8 +2909,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="16742"/>
 					<name value="dict_booking_states"/>
-				</o17>
-				<o18>
+				</o16>
+				<o17>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -3309,8 +2989,8 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="18112"/>
 					<name value="dict_dates"/>
-				</o18>
-				<o19>
+				</o17>
+				<o18>
 					<Changes value=""/>
 					<Fields>
 						<o0>
@@ -3536,6 +3216,324 @@ currency_id	Asc	Last"/>
 					<delete value="0"/>
 					<id value="17417"/>
 					<name value="t_booking_contents"/>
+				</o18>
+				<o19>
+					<Changes value=""/>
+					<Fields>
+						<o0>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value="nextval('main_sequence'::regclass)"/>
+								<Dimensions value="0"/>
+								<Field_Position value="1"/>
+								<Indexed value="1"/>
+								<Name value="id"/>
+								<Nullable value="0"/>
+								<Type value="Integer"/>
+								<Unique value="1"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="id"/>
+						</o0>
+						<o1>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="2"/>
+								<Indexed value="1"/>
+								<Name value="price_plan_id"/>
+								<Nullable value="1"/>
+								<Type value="Integer"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="price_plan_id"/>
+						</o1>
+						<o10>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="13"/>
+								<Indexed value="0"/>
+								<Name value="price_specials_value"/>
+								<Nullable value="1"/>
+								<Type value="Double Precision"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="price_specials_value"/>
+						</o10>
+						<o11>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value="now()"/>
+								<Dimensions value="0"/>
+								<Field_Position value="14"/>
+								<Indexed value="0"/>
+								<Name value="created_at"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="created_at"/>
+						</o11>
+						<o12>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value="now()"/>
+								<Dimensions value="0"/>
+								<Field_Position value="15"/>
+								<Indexed value="0"/>
+								<Name value="updated_at"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="updated_at"/>
+						</o12>
+						<o13>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="18"/>
+								<Name value="holiday_flag"/>
+								<Nullable value="1"/>
+								<Type value="Boolean"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="holiday_flag"/>
+						</o13>
+						<o2>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="3"/>
+								<Indexed value="0"/>
+								<Name value="beg_date_order"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="beg_date_order"/>
+						</o2>
+						<o3>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="4"/>
+								<Indexed value="0"/>
+								<Name value="end_date_order"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="end_date_order"/>
+						</o3>
+						<o4>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="5"/>
+								<Indexed value="0"/>
+								<Name value="period_beg_date"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="period_beg_date"/>
+						</o4>
+						<o5>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="6"/>
+								<Indexed value="0"/>
+								<Name value="period_end_date"/>
+								<Nullable value="1"/>
+								<Precision value="-1"/>
+								<Type value="Timestamp Without Time Zone"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="period_end_date"/>
+						</o5>
+						<o6>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="7"/>
+								<Indexed value="0"/>
+								<Name value="bike_model_id"/>
+								<Nullable value="1"/>
+								<Type value="Integer"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="bike_model_id"/>
+						</o6>
+						<o7>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="8"/>
+								<Indexed value="0"/>
+								<Name value="customer_group_id"/>
+								<Nullable value="1"/>
+								<Type value="Integer"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="customer_group_id"/>
+						</o7>
+						<o8>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="9"/>
+								<Indexed value="0"/>
+								<Name value="bike_count"/>
+								<Nullable value="1"/>
+								<Type value="Integer"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="bike_count"/>
+						</o8>
+						<o9>
+							<Changes value=""/>
+							<Properties>
+								<Collation value=""/>
+								<Comment value=""/>
+								<Default_Value value=""/>
+								<Dimensions value="0"/>
+								<Field_Position value="10"/>
+								<Indexed value="0"/>
+								<Name value="period_order_in_hour"/>
+								<Nullable value="1"/>
+								<Type value="Integer"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<name value="period_order_in_hour"/>
+						</o9>
+					</Fields>
+					<Indexes>
+						<o0>
+							<Changes value=""/>
+							<Properties>
+								<Clustered value="0"/>
+								<Comment value=""/>
+								<Fields value="id	Asc	Last"/>
+								<ID value="17648"/>
+								<Name value="PK_idx_prices_specials_conditions"/>
+								<Text value='CREATE UNIQUE INDEX "PK_idx_prices_specials_conditions" ON t_price_special_conditions USING btree (id)'/>
+								<Type value="btree"/>
+								<Unique value="1"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<id value="17648"/>
+							<name value="PK_idx_prices_specials_conditions"/>
+						</o0>
+						<o1>
+							<Changes value=""/>
+							<Properties>
+								<Clustered value="0"/>
+								<Comment value=""/>
+								<Fields value="price_plan_id	Asc	Last"/>
+								<ID value="17654"/>
+								<Name value="FKI_prices_plans"/>
+								<Text value='CREATE INDEX "FKI_prices_plans" ON t_price_special_conditions USING btree (price_plan_id)'/>
+								<Type value="btree"/>
+								<Unique value="0"/>
+							</Properties>
+							<control value=""/>
+							<delete value="0"/>
+							<id value="17654"/>
+							<name value="FKI_prices_plans"/>
+						</o1>
+					</Indexes>
+					<Properties>
+						<Check_Count value="0"/>
+						<Comment value=""/>
+						<Field_Count value="14"/>
+						<Has_OIDs value="0"/>
+						<ID value="17447"/>
+						<Index_Count value="2"/>
+						<Link_Count value="3"/>
+						<Name value="t_price_special_conditions"/>
+						<Object_Owner value="postgres"/>
+						<Primary_Key value="id"/>
+						<Primary_Key_Name value="PK_t_prices_specials_conditions"/>
+						<Record_Count value="4"/>
+						<Schema value="public"/>
+						<Trigger_Count value="0"/>
+						<Unique_Count value="0"/>
+					</Properties>
+					<control value="Table15"/>
+					<delete value="0"/>
+					<id value="17447"/>
+					<name value="t_price_special_conditions"/>
 				</o19>
 				<o2>
 					<Changes value=""/>
