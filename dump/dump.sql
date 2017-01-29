@@ -146,6 +146,64 @@ $$;
 ALTER FUNCTION public.createbooking(p_booking_code character varying, p_customer_id integer, p_bike_model_code character varying, p_period_beg_date timestamp without time zone, p_period_end_date timestamp without time zone, p_bikes_count integer, p_booking_time timestamp without time zone, p_booking_state_code character varying) OWNER TO postgres;
 
 --
+-- Name: p_save_bike_model(integer, character varying, character varying, character varying, character varying, character varying, integer, double precision, integer, double precision, boolean, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION p_save_bike_model(model_id integer, model_code character varying, model_name character varying, model_brand_code character varying, model_type_code character varying, model_color_code character varying, model_speed_count integer, model_wheel_size_inch double precision, model_year integer, model_weight_kg double precision, model_folding_flag boolean, model_prof_flag boolean) RETURNS void
+    LANGUAGE sql
+    AS $$
+
+	with src
+	(model_id,model_code,model_name,model_brand_code,model_type_code,
+			model_color_code, model_speed_count,model_wheel_size_inch,model_year,
+			  model_weight_kg, model_folding_flag, model_prof_flag)
+	as (
+	values (model_id,model_code,model_name,model_brand_code,model_type_code,
+			model_color_code, model_speed_count,model_wheel_size_inch,model_year,
+			  model_weight_kg, model_folding_flag, model_prof_flag)
+	)
+	insert into dict_bike_models
+	 (bike_model_code, bike_model_name, bike_model_brand_id,bike_model_type_id, bike_model_color_id,
+				bike_model_speed_count, bike_model_wheel_size_inch, bike_model_weight_kg, bike_model_year,
+					bike_model_folding_flag, bike_model_prof_flag)
+	select 	t0.model_code,
+		 t0.model_name,
+		 t1.brand_id,
+		 t4.bike_type_id,
+		 t2.bike_color_id,
+		 t0.model_speed_count,
+		 t0.model_wheel_size_inch,
+		 t0.model_weight_kg,
+		 t0.model_year,
+		 t0.model_folding_flag,
+		 t0.model_prof_flag
+	
+	from src t0
+		inner join dict_bike_brands t1 on t0.model_brand_code = t1.brand_code
+		inner join dict_bike_colors t2 on t0.model_color_code = t2.bike_color_code
+		inner join dict_bike_types t4 on t0.model_type_code = t4.bike_type_code
+	on conflict (bike_model_code) 
+	do update
+	set 
+		bike_model_code = EXCLUDED.bike_model_code,
+		bike_model_name = EXCLUDED.bike_model_name,
+		bike_model_brand_id = EXCLUDED.bike_model_brand_id,
+		bike_model_type_id = EXCLUDED.bike_model_type_id,
+		bike_model_color_id = EXCLUDED.bike_model_color_id,
+		bike_model_speed_count = EXCLUDED.bike_model_speed_count,
+		bike_model_wheel_size_inch = EXCLUDED.bike_model_wheel_size_inch,
+		bike_model_weight_kg = EXCLUDED.bike_model_weight_kg,
+		bike_model_year = EXCLUDED.bike_model_year,
+		bike_model_folding_flag = EXCLUDED.bike_model_folding_flag,
+		bike_model_prof_flag = EXCLUDED.bike_model_prof_flag,
+		updated_at = timestamp without time zone 'now()';
+	
+$$;
+
+
+ALTER FUNCTION public.p_save_bike_model(model_id integer, model_code character varying, model_name character varying, model_brand_code character varying, model_type_code character varying, model_color_code character varying, model_speed_count integer, model_wheel_size_inch double precision, model_year integer, model_weight_kg double precision, model_folding_flag boolean, model_prof_flag boolean) OWNER TO postgres;
+
+--
 -- Name: p_save_bike_model(integer, character varying, character varying, character varying, character varying, character varying, integer, double precision, integer, double precision, boolean, boolean, character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -459,8 +517,8 @@ ALTER TABLE t_booking_orders OWNER TO postgres;
 
 CREATE TABLE t_booking_prices (
     id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    t_price_plans_id integer,
-    booking_consist_id integer NOT NULL,
+    price_plans_id integer,
+    booking_contents_id integer NOT NULL,
     currency_id integer,
     price double precision,
     created_at timestamp without time zone DEFAULT now(),
@@ -525,28 +583,10 @@ CREATE TABLE t_customers_groups_membership (
 ALTER TABLE t_customers_groups_membership OWNER TO postgres;
 
 --
--- Name: t_prices; Type: TABLE; Schema: public; Owner: postgres
+-- Name: t_price_special_conditions; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE t_prices (
-    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    beg_date timestamp without time zone,
-    end_date timestamp without time zone,
-    bike_model_id integer,
-    currency_id integer,
-    price double precision,
-    created_at timestamp without time zone DEFAULT now(),
-    updated_at timestamp without time zone DEFAULT now()
-);
-
-
-ALTER TABLE t_prices OWNER TO postgres;
-
---
--- Name: t_prices_specials_conditions; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE t_prices_specials_conditions (
+CREATE TABLE t_price_special_conditions (
     id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
     price_plan_id integer,
     beg_date_order timestamp without time zone,
@@ -564,7 +604,25 @@ CREATE TABLE t_prices_specials_conditions (
 );
 
 
-ALTER TABLE t_prices_specials_conditions OWNER TO postgres;
+ALTER TABLE t_price_special_conditions OWNER TO postgres;
+
+--
+-- Name: t_prices; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_prices (
+    id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    beg_date timestamp without time zone,
+    end_date timestamp without time zone,
+    bike_model_id integer,
+    currency_id integer,
+    price double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_prices OWNER TO postgres;
 
 --
 -- Name: v_bike_models; Type: VIEW; Schema: public; Owner: postgres
@@ -600,12 +658,12 @@ CREATE VIEW v_bike_models AS
 ALTER TABLE v_bike_models OWNER TO postgres;
 
 --
--- Name: v_booking_price_base_by_sysdate; Type: VIEW; Schema: public; Owner: postgres
+-- Name: v_booking_base_prices; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE VIEW v_booking_price_base_by_sysdate AS
+CREATE VIEW v_booking_base_prices AS
  SELECT t2.booking_id,
-    t1.id AS booking_consist_id,
+    t1.id AS booking_contents_id,
     t0.sys_date,
     t1.bike_model_id,
     t3.customer_id,
@@ -617,28 +675,10 @@ CREATE VIEW v_booking_price_base_by_sysdate AS
      JOIN t_booking_contents t1 ON (((t0.sys_date >= t1.period_beg_date) AND (t0.sys_date <= t1.period_end_date))))
      JOIN t_booking t2 ON ((t1.booking_id = t2.booking_id)))
      JOIN t_customers t3 ON ((t2.customer_id = t3.customer_id)))
-     JOIN t_prices t6 ON ((((t0.sys_date >= t6.beg_date) AND (t0.sys_date <= t6.end_date)) AND (t6.bike_model_id = t1.bike_model_id))));
+     JOIN t_prices t6 ON (((t0.sys_date >= t6.beg_date) AND (t0.sys_date <= t6.end_date) AND (t6.bike_model_id = t1.bike_model_id))));
 
 
-ALTER TABLE v_booking_price_base_by_sysdate OWNER TO postgres;
-
---
--- Name: v_booking_prices; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW v_booking_prices AS
- SELECT t0.sys_date,
-    t1.booking_id,
-    t1.bike_model_id,
-    t1.bikes_count,
-    t2.currency_id,
-    t2.price
-   FROM ((dict_dates t0
-     JOIN t_booking_contents t1 ON (((t0.sys_date >= t1.period_beg_date) AND (t0.sys_date <= t1.period_end_date))))
-     JOIN t_prices t2 ON ((((t0.sys_date >= t2.beg_date) AND (t0.sys_date <= t2.end_date)) AND (t2.bike_model_id = t1.bike_model_id))));
-
-
-ALTER TABLE v_booking_prices OWNER TO postgres;
+ALTER TABLE v_booking_base_prices OWNER TO postgres;
 
 --
 -- Name: v_booking_special_prices; Type: VIEW; Schema: public; Owner: postgres
@@ -646,7 +686,7 @@ ALTER TABLE v_booking_prices OWNER TO postgres;
 
 CREATE VIEW v_booking_special_prices AS
  SELECT t0.sys_date,
-    t1.id AS booking_consist_id,
+    t1.id AS booking_contents_id,
     t1.booking_id,
     t1.bike_model_id,
     t1.bikes_count,
@@ -660,11 +700,11 @@ CREATE VIEW v_booking_special_prices AS
    FROM (((((dict_dates t0
      JOIN t_booking_contents t1 ON (((t0.sys_date >= t1.period_beg_date) AND (t0.sys_date <= t1.period_end_date))))
      JOIN t_booking t10 ON ((t1.booking_id = t10.booking_id)))
-     JOIN t_prices t2 ON ((((t0.sys_date >= t2.beg_date) AND (t0.sys_date <= t2.end_date)) AND (t2.bike_model_id = t1.bike_model_id))))
+     JOIN t_prices t2 ON (((t0.sys_date >= t2.beg_date) AND (t0.sys_date <= t2.end_date) AND (t2.bike_model_id = t1.bike_model_id))))
      CROSS JOIN dict_prices_discounts t3)
-     JOIN t_prices_specials_conditions t4 ON (((t3.id = t4.price_plan_id) AND ((t10.booking_time >= t4.beg_date_order) AND (t10.booking_time <= t4.end_date_order)) AND ((t0.sys_date >= t4.period_beg_date) AND (t0.sys_date <= t4.period_end_date)) AND ((t1.bike_model_id = t4.bike_model_id) OR (t4.bike_model_id IS NULL)) AND ((EXISTS ( SELECT 1
+     JOIN t_price_special_conditions t4 ON (((t3.id = t4.price_plan_id) AND ((t10.booking_time >= t4.beg_date_order) AND (t10.booking_time <= t4.end_date_order)) AND ((t0.sys_date >= t4.period_beg_date) AND (t0.sys_date <= t4.period_end_date)) AND ((t1.bike_model_id = t4.bike_model_id) OR (t4.bike_model_id IS NULL)) AND ((EXISTS ( SELECT 1
            FROM t_customers_groups_membership t100
-          WHERE (((t0.sys_date >= t100.beg_date) AND (t0.sys_date <= t100.end_date)) AND (t10.customer_id = t100.customer_id) AND (t4.customer_group_id = t100.customer_group_id)))) OR (t4.customer_group_id IS NULL)) AND ((EXISTS ( SELECT 1
+          WHERE ((t0.sys_date >= t100.beg_date) AND (t0.sys_date <= t100.end_date) AND (t10.customer_id = t100.customer_id) AND (t4.customer_group_id = t100.customer_group_id)))) OR (t4.customer_group_id IS NULL)) AND ((EXISTS ( SELECT 1
            FROM t_booking_contents t110
           WHERE (((t110.bike_model_id = t4.bike_model_id) OR (t4.bike_model_id IS NULL)) AND (t110.booking_id = t1.booking_id))
          HAVING (sum(t110.bikes_count) >= t4.bike_count))) OR (t4.bike_count IS NULL)) AND (((t1.period_beg_date + ((t4.period_order_in_hour || ' hour'::text))::interval) <= t1.period_end_date) OR (t4.period_order_in_hour IS NULL)) AND ((t0.holiday_flag = t4.holiday_flag) OR (t4.holiday_flag IS NULL)))));
@@ -673,10 +713,66 @@ CREATE VIEW v_booking_special_prices AS
 ALTER TABLE v_booking_special_prices OWNER TO postgres;
 
 --
--- Name: v_customers_groups_membership; Type: VIEW; Schema: public; Owner: postgres
+-- Name: v_booking_prices; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE VIEW v_customers_groups_membership AS
+CREATE VIEW v_booking_prices AS
+ SELECT NULL::integer AS price_plans_id,
+    v_booking_base_prices.booking_contents_id,
+    v_booking_base_prices.currency_id,
+    sum(((v_booking_base_prices.bikes_count)::double precision * v_booking_base_prices.price)) AS price
+   FROM v_booking_base_prices
+  GROUP BY v_booking_base_prices.booking_contents_id, v_booking_base_prices.currency_id
+UNION ALL
+ SELECT rt.discount_id AS price_plans_id,
+    rt.booking_contents_id,
+    rt.currency_id,
+    rt.price
+   FROM ( SELECT v_booking_special_prices.discount_id,
+            v_booking_special_prices.booking_id,
+            v_booking_special_prices.booking_contents_id,
+            v_booking_special_prices.currency_id,
+            v_booking_special_prices.price_sum_flag,
+            sum(((((('-1'::integer * v_booking_special_prices.bikes_count))::double precision * v_booking_special_prices.price_specials_value) / (100)::double precision) * v_booking_special_prices.price)) AS price,
+            count(*) OVER (PARTITION BY v_booking_special_prices.booking_id, v_booking_special_prices.currency_id, v_booking_special_prices.price_sum_flag ORDER BY (sum(((((('-1'::integer * v_booking_special_prices.bikes_count))::double precision * v_booking_special_prices.price_specials_value) / (100)::double precision) * v_booking_special_prices.price)))) AS cnt
+           FROM v_booking_special_prices
+          GROUP BY v_booking_special_prices.discount_id, v_booking_special_prices.booking_id, v_booking_special_prices.booking_contents_id, v_booking_special_prices.currency_id, v_booking_special_prices.price_sum_flag) rt
+  WHERE (rt.price_sum_flag OR ((rt.cnt = 1) AND (NOT rt.price_sum_flag)));
+
+
+ALTER TABLE v_booking_prices OWNER TO postgres;
+
+--
+-- Name: v_bill_example; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW v_bill_example AS
+ SELECT t3.price_code,
+    t3.price_name,
+    t2.id,
+    t2.booking_id,
+    t2.bike_model_id,
+    t2.period_beg_date,
+    t2.period_end_date,
+    t2.bikes_count,
+    t2.created_at,
+    t2.updated_at,
+    t1.currency_id,
+    t1.price
+   FROM ((v_booking_prices t1
+     JOIN t_booking_contents t2 ON ((t1.booking_contents_id = t2.id)))
+     LEFT JOIN dict_prices_discounts t3 ON ((t1.price_plans_id = t3.id)))
+  WHERE (t2.booking_id = 17747)
+  ORDER BY t1.currency_id, t3.price_code DESC;
+
+
+ALTER TABLE v_bill_example OWNER TO postgres;
+
+--
+-- Name: v_customer_group_membership; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW v_customer_group_membership AS
  SELECT t1.id,
     t1.beg_date,
     t1.end_date,
@@ -693,7 +789,7 @@ CREATE VIEW v_customers_groups_membership AS
      JOIN t_customers_groups t3 ON ((t1.customer_group_id = t3.customer_group_id)));
 
 
-ALTER TABLE v_customers_groups_membership OWNER TO postgres;
+ALTER TABLE v_customer_group_membership OWNER TO postgres;
 
 --
 -- Data for Name: dict_bike_brands; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -6622,7 +6718,7 @@ COPY t_booking_orders (id, booking_id, bike_id, created_at, updated_at) FROM std
 -- Data for Name: t_booking_prices; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY t_booking_prices (id, t_price_plans_id, booking_consist_id, currency_id, price, created_at, updated_at) FROM stdin;
+COPY t_booking_prices (id, price_plans_id, booking_contents_id, currency_id, price, created_at, updated_at) FROM stdin;
 \.
 
 
@@ -6668,6 +6764,18 @@ COPY t_customers_groups_membership (id, beg_date, end_date, customer_id, custome
 10064	2000-01-01 00:00:00	2100-01-01 00:00:00	10050	10047	2017-01-16 19:10:19.443106	2017-01-16 19:10:19.442964
 10065	2000-01-01 00:00:00	2100-01-01 00:00:00	10051	10048	2017-01-16 19:10:19.450158	2017-01-16 19:10:19.449973
 10066	2000-01-01 00:00:00	2100-01-01 00:00:00	10051	10046	2017-01-16 19:10:19.457666	2017-01-16 19:10:19.457514
+\.
+
+
+--
+-- Data for Name: t_price_special_conditions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY t_price_special_conditions (id, price_plan_id, beg_date_order, end_date_order, period_beg_date, period_end_date, bike_model_id, customer_group_id, bike_count, period_order_in_hour, price_specials_value, created_at, updated_at, holiday_flag) FROM stdin;
+17735	16577	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	\N	\N	5	2017-01-28 18:37:12.462935	2017-01-28 18:37:12.462935	t
+17737	16579	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	\N	240	7	2017-01-28 18:37:12.47217	2017-01-28 18:37:12.47217	\N
+17736	16578	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	5	\N	5	2017-01-28 18:37:12.467523	2017-01-28 18:37:12.467523	\N
+17734	16576	2001-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	10046	\N	\N	10	2017-01-28 18:37:12.458047	2017-01-28 18:37:12.458047	\N
 \.
 
 
@@ -7640,18 +7748,6 @@ COPY t_prices (id, beg_date, end_date, bike_model_id, currency_id, price, create
 
 
 --
--- Data for Name: t_prices_specials_conditions; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY t_prices_specials_conditions (id, price_plan_id, beg_date_order, end_date_order, period_beg_date, period_end_date, bike_model_id, customer_group_id, bike_count, period_order_in_hour, price_specials_value, created_at, updated_at, holiday_flag) FROM stdin;
-17735	16577	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	\N	\N	5	2017-01-28 18:37:12.462935	2017-01-28 18:37:12.462935	t
-17737	16579	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	\N	240	7	2017-01-28 18:37:12.47217	2017-01-28 18:37:12.47217	\N
-17736	16578	2000-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	\N	5	\N	5	2017-01-28 18:37:12.467523	2017-01-28 18:37:12.467523	\N
-17734	16576	2001-01-01 00:00:00	2100-01-01 00:00:00	2000-01-01 00:00:00	2100-01-01 00:00:00	\N	10046	\N	\N	10	2017-01-28 18:37:12.458047	2017-01-28 18:37:12.458047	\N
-\.
-
-
---
 -- Name: t_bikes_states PK_bike_states_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -7804,10 +7900,10 @@ ALTER TABLE ONLY t_prices
 
 
 --
--- Name: t_prices_specials_conditions PK_t_prices_specials_conditions; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: t_price_special_conditions PK_t_prices_specials_conditions; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY t_prices_specials_conditions
+ALTER TABLE ONLY t_price_special_conditions
     ADD CONSTRAINT "PK_t_prices_specials_conditions" PRIMARY KEY (id);
 
 
@@ -7921,7 +8017,7 @@ CREATE INDEX "FKI_model_type_id" ON dict_bike_models USING btree (bike_model_typ
 -- Name: FKI_prices_plans; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX "FKI_prices_plans" ON t_prices_specials_conditions USING btree (price_plan_id);
+CREATE INDEX "FKI_prices_plans" ON t_price_special_conditions USING btree (price_plan_id);
 
 
 --
@@ -7935,7 +8031,7 @@ CREATE INDEX "FKI_to_bike_model_id" ON t_prices USING btree (bike_model_id);
 -- Name: FKI_to_booking_consist; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX "FKI_to_booking_consist" ON t_booking_prices USING btree (booking_consist_id);
+CREATE INDEX "FKI_to_booking_consist" ON t_booking_prices USING btree (booking_contents_id);
 
 
 --
@@ -7949,7 +8045,7 @@ CREATE INDEX "FKI_to_currency_id" ON t_prices USING btree (currency_id);
 -- Name: FKI_to_price_plans_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX "FKI_to_price_plans_id" ON t_booking_prices USING btree (t_price_plans_id);
+CREATE INDEX "FKI_to_price_plans_id" ON t_booking_prices USING btree (price_plans_id);
 
 
 --
@@ -8068,7 +8164,7 @@ CREATE UNIQUE INDEX "PK_idx_prices_plans" ON dict_prices_discounts USING btree (
 -- Name: PK_idx_prices_specials_conditions; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE UNIQUE INDEX "PK_idx_prices_specials_conditions" ON t_prices_specials_conditions USING btree (id);
+CREATE UNIQUE INDEX "PK_idx_prices_specials_conditions" ON t_price_special_conditions USING btree (id);
 
 
 --
@@ -8268,10 +8364,10 @@ ALTER TABLE ONLY dict_bike_models
 
 
 --
--- Name: t_prices_specials_conditions FK_prices_plans; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: t_price_special_conditions FK_prices_plans; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY t_prices_specials_conditions
+ALTER TABLE ONLY t_price_special_conditions
     ADD CONSTRAINT "FK_prices_plans" FOREIGN KEY (price_plan_id) REFERENCES dict_prices_discounts(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
@@ -8288,7 +8384,7 @@ ALTER TABLE ONLY t_prices
 --
 
 ALTER TABLE ONLY t_booking_prices
-    ADD CONSTRAINT "FK_to_booking_consist" FOREIGN KEY (booking_consist_id) REFERENCES t_booking_contents(id);
+    ADD CONSTRAINT "FK_to_booking_consist" FOREIGN KEY (booking_contents_id) REFERENCES t_booking_contents(id);
 
 
 --
@@ -8304,22 +8400,22 @@ ALTER TABLE ONLY t_prices
 --
 
 ALTER TABLE ONLY t_booking_prices
-    ADD CONSTRAINT "FK_to_price_plans_id" FOREIGN KEY (t_price_plans_id) REFERENCES dict_prices_discounts(id);
+    ADD CONSTRAINT "FK_to_price_plans_id" FOREIGN KEY (price_plans_id) REFERENCES dict_prices_discounts(id);
 
 
 --
--- Name: t_prices_specials_conditions fk_t_prices_specials_conditions_dict_bike_models; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: t_price_special_conditions fk_t_prices_specials_conditions_dict_bike_models; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY t_prices_specials_conditions
+ALTER TABLE ONLY t_price_special_conditions
     ADD CONSTRAINT fk_t_prices_specials_conditions_dict_bike_models FOREIGN KEY (bike_model_id) REFERENCES dict_bike_models(bike_model_id) ON UPDATE CASCADE;
 
 
 --
--- Name: t_prices_specials_conditions fk_to_customer_group_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: t_price_special_conditions fk_to_customer_group_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY t_prices_specials_conditions
+ALTER TABLE ONLY t_price_special_conditions
     ADD CONSTRAINT fk_to_customer_group_id FOREIGN KEY (customer_group_id) REFERENCES t_customers_groups(customer_group_id) ON UPDATE CASCADE;
 
 
