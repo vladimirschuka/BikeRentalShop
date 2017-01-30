@@ -24,14 +24,14 @@ class ConsoleApp
   end
   
   def menu
-    if not @current_user.customer_id.nil?
+  
       puts '----------------------------------'
       puts 'Menu'
       puts '----------------------------------'
       menu = ['0 -> Add Sample data' ,'1 -> Login','2 -> Bikes count','3 -> Create booking']
     
       menu.each{|x| puts x} 
-    end
+    
     
     puts '----------------------------------'
     
