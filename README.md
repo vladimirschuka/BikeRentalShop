@@ -25,3 +25,19 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 
 ## How to use it
 
+The application requirement:
+
+* PostgresSql as Database (version 9.5 or above)
+
+* ruby language for scripts
+
+### Step 1. Git clone
+
+### Step 2. DataBase configure
+
+### Step 3. Add schema to DB
+
+### Step 4. Add sample data to DB
+
+### Step 5. Use it !
+
