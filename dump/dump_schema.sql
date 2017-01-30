@@ -66,6 +66,39 @@ $$;
 ALTER FUNCTION public.bikestatechange(p_bike_id integer, p_bike_state_code character varying) OWNER TO postgres;
 
 --
+-- Name: bookingpricecalculate(integer, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION bookingpricecalculate(p_booking_id integer, p_recalc boolean DEFAULT false) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+
+  delete
+    from t_booking_prices t1
+     using t_booking_contents t2
+    where booking_contents_id = t2.id
+      and t2.booking_id = p_booking_id
+      and p_recalc;
+
+  insert into t_booking_prices
+    (price_plans_id, booking_contents_id, currency_id, price)
+   select price_plans_id, booking_contents_id, currency_id, round(price::NUMERIC,2) price
+   from v_booking_prices t1
+    inner join t_booking_contents t2 on t1.booking_contents_id = t2.id
+                                     and t2.booking_id = p_booking_id
+    where not exists(select 1 from t_booking_prices t0 where t0.booking_contents_id = t2.id) or p_recalc;
+
+
+
+end;
+$$;
+
+
+ALTER FUNCTION public.bookingpricecalculate(p_booking_id integer, p_recalc boolean) OWNER TO postgres;
+
+--
 -- Name: createbike(character varying, character varying, date, double precision, character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -463,22 +496,6 @@ CREATE TABLE t_bikes_states (
 ALTER TABLE t_bikes_states OWNER TO postgres;
 
 --
--- Name: t_booking; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE t_booking (
-    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    booking_time timestamp without time zone,
-    booking_code character varying(250),
-    customer_id integer,
-    booking_state_id integer,
-    updated_at timestamp without time zone DEFAULT now()
-);
-
-
-ALTER TABLE t_booking OWNER TO postgres;
-
---
 -- Name: t_booking_contents; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -495,6 +512,57 @@ CREATE TABLE t_booking_contents (
 
 
 ALTER TABLE t_booking_contents OWNER TO postgres;
+
+--
+-- Name: free_bikes_by_sys_date; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW free_bikes_by_sys_date AS
+ WITH available_bikes AS (
+         SELECT t0.bike_model_id,
+            t2.bike_state_code,
+            count(*) AS cnt_all
+           FROM ((t_bikes t0
+             JOIN t_bikes_states t1 ON ((t0.bike_current_state_id = t1.id)))
+             JOIN dict_bike_states t2 ON ((t1.bike_state_id = t2.bike_state_id)))
+          GROUP BY t0.bike_model_id, t2.bike_state_code
+        ), dates AS (
+         SELECT dt_1.sys_date
+           FROM (dict_dates dt_1
+             JOIN ( SELECT min(t_booking_contents.period_beg_date) AS min_date,
+                    max(t_booking_contents.period_end_date) AS max_date
+                   FROM t_booking_contents) rt ON (((dt_1.sys_date >= rt.min_date) AND (dt_1.sys_date <= rt.max_date))))
+        )
+ SELECT dt.sys_date,
+    ab.bike_model_id,
+    ab.bike_state_code,
+    ab.cnt_all,
+    sum(cn.bikes_count) AS cnt_needed,
+    (ab.cnt_all - sum(cn.bikes_count)) AS cnt_bikes_free
+   FROM ((available_bikes ab
+     CROSS JOIN dates dt)
+     LEFT JOIN t_booking_contents cn ON ((((dt.sys_date >= cn.period_beg_date) AND (dt.sys_date <= cn.period_end_date)) AND (cn.bike_model_id = ab.bike_model_id) AND ((ab.bike_state_code)::text = 'work'::text))))
+  GROUP BY dt.sys_date, ab.bike_model_id, ab.bike_state_code, ab.cnt_all
+  ORDER BY dt.sys_date, ab.bike_model_id, ab.bike_state_code;
+
+
+ALTER TABLE free_bikes_by_sys_date OWNER TO postgres;
+
+--
+-- Name: t_booking; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_booking (
+    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    booking_time timestamp without time zone,
+    booking_code character varying(250),
+    customer_id integer,
+    booking_state_id integer,
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_booking OWNER TO postgres;
 
 --
 -- Name: t_booking_orders; Type: TABLE; Schema: public; Owner: postgres
@@ -743,30 +811,28 @@ UNION ALL
 ALTER TABLE v_booking_prices OWNER TO postgres;
 
 --
--- Name: v_bill_example; Type: VIEW; Schema: public; Owner: postgres
+-- Name: v_bills_example; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE VIEW v_bill_example AS
- SELECT t3.price_code,
-    t3.price_name,
-    t2.id,
-    t2.booking_id,
-    t2.bike_model_id,
-    t2.period_beg_date,
-    t2.period_end_date,
-    t2.bikes_count,
-    t2.created_at,
-    t2.updated_at,
-    t1.currency_id,
-    t1.price
-   FROM ((v_booking_prices t1
+CREATE VIEW v_bills_example AS
+ SELECT t2.booking_id,
+    max((t20.booking_code)::text) AS booking_code,
+    max(t20.booking_time) AS booking_time,
+    t21.bike_model_name,
+    COALESCE(COALESCE(t3.price_code, 'base'::character varying), 'TOTAL :'::character varying) AS price_code,
+    COALESCE(COALESCE(t3.price_name, 'Base price'::character varying), '--------'::character varying) AS "coalesce",
+    t22.currency_name,
+    round((sum(t1.price))::numeric, 2) AS price
+   FROM (((((v_booking_prices t1
      JOIN t_booking_contents t2 ON ((t1.booking_contents_id = t2.id)))
+     JOIN t_booking t20 ON ((t2.booking_id = t20.booking_id)))
+     JOIN dict_bike_models t21 ON ((t2.bike_model_id = t21.bike_model_id)))
+     JOIN dict_currencies t22 ON ((t1.currency_id = t22.currency_id)))
      LEFT JOIN dict_prices_discounts t3 ON ((t1.price_plans_id = t3.id)))
-  WHERE (t2.booking_id = 17747)
-  ORDER BY t1.currency_id, t3.price_code DESC;
+  GROUP BY t2.booking_id, CUBE((t21.bike_model_name, COALESCE(t3.price_code, 'base'::character varying), COALESCE(t3.price_name, 'Base price'::character varying))), t22.currency_name;
 
 
-ALTER TABLE v_bill_example OWNER TO postgres;
+ALTER TABLE v_bills_example OWNER TO postgres;
 
 --
 -- Name: v_customer_group_membership; Type: VIEW; Schema: public; Owner: postgres

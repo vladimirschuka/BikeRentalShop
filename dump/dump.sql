@@ -66,6 +66,39 @@ $$;
 ALTER FUNCTION public.bikestatechange(p_bike_id integer, p_bike_state_code character varying) OWNER TO postgres;
 
 --
+-- Name: bookingpricecalculate(integer, boolean); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION bookingpricecalculate(p_booking_id integer, p_recalc boolean DEFAULT false) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+
+  delete
+    from t_booking_prices t1
+     using t_booking_contents t2
+    where booking_contents_id = t2.id
+      and t2.booking_id = p_booking_id
+      and p_recalc;
+
+  insert into t_booking_prices
+    (price_plans_id, booking_contents_id, currency_id, price)
+   select price_plans_id, booking_contents_id, currency_id, round(price::NUMERIC,2) price
+   from v_booking_prices t1
+    inner join t_booking_contents t2 on t1.booking_contents_id = t2.id
+                                     and t2.booking_id = p_booking_id
+    where not exists(select 1 from t_booking_prices t0 where t0.booking_contents_id = t2.id) or p_recalc;
+
+
+
+end;
+$$;
+
+
+ALTER FUNCTION public.bookingpricecalculate(p_booking_id integer, p_recalc boolean) OWNER TO postgres;
+
+--
 -- Name: createbike(character varying, character varying, date, double precision, character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -463,22 +496,6 @@ CREATE TABLE t_bikes_states (
 ALTER TABLE t_bikes_states OWNER TO postgres;
 
 --
--- Name: t_booking; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE t_booking (
-    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
-    booking_time timestamp without time zone,
-    booking_code character varying(250),
-    customer_id integer,
-    booking_state_id integer,
-    updated_at timestamp without time zone DEFAULT now()
-);
-
-
-ALTER TABLE t_booking OWNER TO postgres;
-
---
 -- Name: t_booking_contents; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -495,6 +512,57 @@ CREATE TABLE t_booking_contents (
 
 
 ALTER TABLE t_booking_contents OWNER TO postgres;
+
+--
+-- Name: free_bikes_by_sys_date; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW free_bikes_by_sys_date AS
+ WITH available_bikes AS (
+         SELECT t0.bike_model_id,
+            t2.bike_state_code,
+            count(*) AS cnt_all
+           FROM ((t_bikes t0
+             JOIN t_bikes_states t1 ON ((t0.bike_current_state_id = t1.id)))
+             JOIN dict_bike_states t2 ON ((t1.bike_state_id = t2.bike_state_id)))
+          GROUP BY t0.bike_model_id, t2.bike_state_code
+        ), dates AS (
+         SELECT dt_1.sys_date
+           FROM (dict_dates dt_1
+             JOIN ( SELECT min(t_booking_contents.period_beg_date) AS min_date,
+                    max(t_booking_contents.period_end_date) AS max_date
+                   FROM t_booking_contents) rt ON (((dt_1.sys_date >= rt.min_date) AND (dt_1.sys_date <= rt.max_date))))
+        )
+ SELECT dt.sys_date,
+    ab.bike_model_id,
+    ab.bike_state_code,
+    ab.cnt_all,
+    sum(cn.bikes_count) AS cnt_needed,
+    (ab.cnt_all - sum(cn.bikes_count)) AS cnt_bikes_free
+   FROM ((available_bikes ab
+     CROSS JOIN dates dt)
+     LEFT JOIN t_booking_contents cn ON ((((dt.sys_date >= cn.period_beg_date) AND (dt.sys_date <= cn.period_end_date)) AND (cn.bike_model_id = ab.bike_model_id) AND ((ab.bike_state_code)::text = 'work'::text))))
+  GROUP BY dt.sys_date, ab.bike_model_id, ab.bike_state_code, ab.cnt_all
+  ORDER BY dt.sys_date, ab.bike_model_id, ab.bike_state_code;
+
+
+ALTER TABLE free_bikes_by_sys_date OWNER TO postgres;
+
+--
+-- Name: t_booking; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE t_booking (
+    booking_id integer DEFAULT nextval('main_sequence'::regclass) NOT NULL,
+    booking_time timestamp without time zone,
+    booking_code character varying(250),
+    customer_id integer,
+    booking_state_id integer,
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE t_booking OWNER TO postgres;
 
 --
 -- Name: t_booking_orders; Type: TABLE; Schema: public; Owner: postgres
@@ -743,30 +811,28 @@ UNION ALL
 ALTER TABLE v_booking_prices OWNER TO postgres;
 
 --
--- Name: v_bill_example; Type: VIEW; Schema: public; Owner: postgres
+-- Name: v_bills_example; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE VIEW v_bill_example AS
- SELECT t3.price_code,
-    t3.price_name,
-    t2.id,
-    t2.booking_id,
-    t2.bike_model_id,
-    t2.period_beg_date,
-    t2.period_end_date,
-    t2.bikes_count,
-    t2.created_at,
-    t2.updated_at,
-    t1.currency_id,
-    t1.price
-   FROM ((v_booking_prices t1
+CREATE VIEW v_bills_example AS
+ SELECT t2.booking_id,
+    max((t20.booking_code)::text) AS booking_code,
+    max(t20.booking_time) AS booking_time,
+    t21.bike_model_name,
+    COALESCE(COALESCE(t3.price_code, 'base'::character varying), 'TOTAL :'::character varying) AS price_code,
+    COALESCE(COALESCE(t3.price_name, 'Base price'::character varying), '--------'::character varying) AS "coalesce",
+    t22.currency_name,
+    round((sum(t1.price))::numeric, 2) AS price
+   FROM (((((v_booking_prices t1
      JOIN t_booking_contents t2 ON ((t1.booking_contents_id = t2.id)))
+     JOIN t_booking t20 ON ((t2.booking_id = t20.booking_id)))
+     JOIN dict_bike_models t21 ON ((t2.bike_model_id = t21.bike_model_id)))
+     JOIN dict_currencies t22 ON ((t1.currency_id = t22.currency_id)))
      LEFT JOIN dict_prices_discounts t3 ON ((t1.price_plans_id = t3.id)))
-  WHERE (t2.booking_id = 17747)
-  ORDER BY t1.currency_id, t3.price_code DESC;
+  GROUP BY t2.booking_id, CUBE((t21.bike_model_name, COALESCE(t3.price_code, 'base'::character varying), COALESCE(t3.price_name, 'Base price'::character varying))), t22.currency_name;
 
 
-ALTER TABLE v_bill_example OWNER TO postgres;
+ALTER TABLE v_bills_example OWNER TO postgres;
 
 --
 -- Name: v_customer_group_membership; Type: VIEW; Schema: public; Owner: postgres
@@ -998,115 +1064,6 @@ COPY dict_currencies (currency_id, currency_code, currency_name, created_at, upd
 --
 
 COPY dict_dates (sys_date, holiday_flag) FROM stdin;
-2018-05-19	t
-2018-05-20	t
-2018-05-26	t
-2018-05-27	t
-2018-06-02	t
-2018-06-03	t
-2018-06-09	t
-2018-06-10	t
-2018-06-16	t
-2018-06-17	t
-2029-04-21	t
-2029-04-22	t
-2029-04-28	t
-2029-04-29	t
-2018-09-08	t
-2018-09-09	t
-2018-09-15	t
-2018-09-16	t
-2018-09-22	t
-2018-09-23	t
-2018-09-29	t
-2018-09-30	t
-2018-10-06	t
-2018-10-07	t
-2018-10-13	t
-2018-10-14	t
-2018-10-20	t
-2018-10-21	t
-2018-10-27	t
-2018-10-28	t
-2018-11-03	t
-2018-11-04	t
-2018-11-10	t
-2018-11-11	t
-2018-11-17	t
-2018-11-18	t
-2018-11-24	t
-2018-11-25	t
-2018-12-01	t
-2018-12-02	t
-2018-12-08	t
-2018-12-09	t
-2018-12-15	t
-2018-12-16	t
-2018-12-22	t
-2018-12-23	t
-2019-11-30	t
-2019-12-01	t
-2019-12-07	t
-2019-12-08	t
-2019-12-14	t
-2019-12-15	t
-2019-12-21	t
-2019-12-22	t
-2019-12-28	t
-2019-12-29	t
-2020-01-04	t
-2020-01-05	t
-2020-01-11	t
-2020-01-12	t
-2020-01-18	t
-2020-01-19	t
-2020-01-25	t
-2020-01-26	t
-2020-02-01	t
-2020-02-02	t
-2020-02-08	t
-2021-11-27	t
-2021-11-28	t
-2021-12-04	t
-2021-12-05	t
-2021-12-11	t
-2021-12-12	t
-2021-12-18	t
-2021-12-19	t
-2021-12-25	t
-2021-12-26	t
-2022-01-01	t
-2022-01-02	t
-2022-01-08	t
-2022-01-09	t
-2022-01-15	t
-2022-01-16	t
-2022-01-22	t
-2022-01-23	t
-2022-01-29	t
-2022-01-30	t
-2022-02-05	t
-2022-02-06	t
-2022-02-12	t
-2020-12-20	t
-2020-12-26	t
-2020-12-27	t
-2021-01-02	t
-2021-01-03	t
-2021-01-09	t
-2019-06-02	t
-2019-06-08	t
-2019-06-09	t
-2019-06-15	t
-2019-06-16	t
-2019-06-22	t
-2019-06-23	t
-2019-06-29	t
-2019-06-30	t
-2019-07-06	t
-2019-07-07	t
-2019-07-13	t
-2022-02-13	t
 2022-02-19	t
 2022-02-20	t
 2022-02-26	t
@@ -1179,95 +1136,6 @@ COPY dict_dates (sys_date, holiday_flag) FROM stdin;
 2020-05-17	t
 2020-05-23	t
 2020-05-24	t
-2020-05-30	t
-2020-05-31	t
-2020-06-06	t
-2020-06-07	t
-2020-06-13	t
-2020-06-14	t
-2020-06-20	t
-2020-06-21	t
-2020-06-27	t
-2020-06-28	t
-2020-07-04	t
-2020-07-05	t
-2020-07-11	t
-2020-07-12	t
-2020-07-18	t
-2020-07-19	t
-2020-07-25	t
-2020-07-26	t
-2020-08-01	t
-2020-08-02	t
-2020-08-08	t
-2020-08-09	t
-2020-08-15	t
-2020-08-16	t
-2022-03-19	t
-2022-03-20	t
-2022-03-26	t
-2022-03-27	t
-2022-04-02	t
-2022-04-03	t
-2022-04-09	t
-2022-04-10	t
-2022-04-16	t
-2022-04-17	t
-2022-04-23	t
-2022-04-24	t
-2022-04-30	t
-2022-05-01	t
-2022-05-07	t
-2022-05-08	t
-2022-05-14	t
-2022-05-15	t
-2022-05-21	t
-2022-05-22	t
-2022-05-28	t
-2022-05-29	t
-2022-06-04	t
-2022-06-05	t
-2022-06-11	t
-2022-06-12	t
-2022-06-18	t
-2022-06-19	t
-2022-06-25	t
-2022-06-26	t
-2022-07-02	t
-2022-07-03	t
-2022-07-09	t
-2022-07-10	t
-2022-07-16	t
-2022-07-17	t
-2022-07-23	t
-2022-07-24	t
-2022-07-30	t
-2022-07-31	t
-2022-08-06	t
-2022-08-07	t
-2022-08-13	t
-2022-08-14	t
-2022-08-20	t
-2022-08-21	t
-2022-08-27	t
-2022-10-02	t
-2022-10-08	t
-2022-10-09	t
-2022-10-15	t
-2022-10-16	t
-2022-10-22	t
-2022-10-23	t
-2022-10-29	t
-2022-10-30	t
-2022-11-05	t
-2022-11-06	t
-2022-11-12	t
-2022-11-13	t
-2022-11-19	t
-2022-11-20	t
-2022-11-26	t
-2022-11-27	t
-2022-12-03	t
 2022-12-04	t
 2022-12-10	t
 2022-12-11	t
@@ -1308,111 +1176,6 @@ COPY dict_dates (sys_date, holiday_flag) FROM stdin;
 2023-04-15	t
 2023-04-16	t
 2023-04-22	t
-2023-04-23	t
-2023-04-29	t
-2023-04-30	t
-2023-05-06	t
-2023-05-07	t
-2023-05-13	t
-2023-05-14	t
-2023-05-20	t
-2023-05-21	t
-2023-05-27	t
-2023-05-28	t
-2023-06-03	t
-2023-06-04	t
-2023-06-10	t
-2023-06-11	t
-2023-06-17	t
-2023-06-18	t
-2023-06-24	t
-2023-06-25	t
-2023-07-01	t
-2023-07-02	t
-2023-07-08	t
-2023-07-09	t
-2023-07-15	t
-2023-07-16	t
-2023-07-22	t
-2023-07-23	t
-2023-07-29	t
-2023-07-30	t
-2023-08-05	t
-2023-08-06	t
-2023-08-12	t
-2023-08-13	t
-2023-08-19	t
-2023-08-20	t
-2023-08-26	t
-2023-08-27	t
-2023-09-02	t
-2023-09-03	t
-2023-09-09	t
-2023-09-10	t
-2023-09-16	t
-2023-09-17	t
-2023-09-23	t
-2023-09-24	t
-2023-09-30	t
-2023-10-01	t
-2023-10-07	t
-2023-10-08	t
-2023-10-14	t
-2023-10-15	t
-2023-10-21	t
-2023-10-22	t
-2023-10-28	t
-2023-10-29	t
-2023-11-04	t
-2023-11-05	t
-2024-04-07	t
-2024-04-13	t
-2024-04-14	t
-2024-04-20	t
-2024-04-21	t
-2024-04-27	t
-2024-04-28	t
-2024-05-04	t
-2024-05-05	t
-2024-05-11	t
-2024-05-12	t
-2024-05-18	t
-2024-05-19	t
-2024-05-25	t
-2024-05-26	t
-2024-06-01	t
-2024-06-02	t
-2024-06-08	t
-2024-06-09	t
-2024-06-15	t
-2024-06-16	t
-2024-06-22	t
-2024-06-23	t
-2024-06-29	t
-2024-06-30	t
-2024-07-06	t
-2024-07-07	t
-2024-07-13	t
-2024-07-14	t
-2024-07-20	t
-2024-07-21	t
-2024-07-27	t
-2024-07-28	t
-2024-08-03	t
-2024-08-04	t
-2024-08-10	t
-2024-08-11	t
-2024-08-17	t
-2024-08-18	t
-2024-08-24	t
-2024-08-25	t
-2024-08-31	t
-2024-09-01	t
-2024-09-07	t
-2024-09-08	t
-2024-09-14	t
-2024-09-15	t
-2021-10-02	t
 2021-10-03	t
 2021-10-09	t
 2024-12-22	t
@@ -1979,6 +1742,42 @@ COPY dict_dates (sys_date, holiday_flag) FROM stdin;
 2028-04-16	t
 2028-04-22	t
 2028-04-23	t
+2018-05-19	t
+2018-05-20	t
+2018-05-26	t
+2018-05-27	t
+2018-06-02	t
+2018-06-03	t
+2018-06-09	t
+2018-06-10	t
+2018-06-16	t
+2018-06-17	t
+2029-04-21	t
+2029-04-22	t
+2029-04-28	t
+2029-04-29	t
+2018-09-08	t
+2018-09-09	t
+2018-09-15	t
+2018-09-16	t
+2018-09-22	t
+2018-09-23	t
+2018-09-29	t
+2018-09-30	t
+2018-10-06	t
+2018-10-07	t
+2018-10-13	t
+2018-10-14	t
+2018-10-20	t
+2018-10-21	t
+2018-10-27	t
+2018-10-28	t
+2018-11-03	t
+2018-11-04	t
+2018-11-10	t
+2018-11-11	t
+2018-11-17	t
+2018-11-18	t
 2028-04-29	t
 2028-04-30	t
 2017-07-02	t
@@ -2099,6 +1898,273 @@ COPY dict_dates (sys_date, holiday_flag) FROM stdin;
 2019-10-19	t
 2019-10-20	t
 2019-10-26	t
+2018-11-24	t
+2018-11-25	t
+2018-12-01	t
+2018-12-02	t
+2018-12-08	t
+2018-12-09	t
+2018-12-15	t
+2018-12-16	t
+2018-12-22	t
+2018-12-23	t
+2019-11-30	t
+2019-12-01	t
+2019-12-07	t
+2019-12-08	t
+2019-12-14	t
+2019-12-15	t
+2019-12-21	t
+2019-12-22	t
+2019-12-28	t
+2019-12-29	t
+2020-01-04	t
+2020-01-05	t
+2020-01-11	t
+2020-01-12	t
+2020-01-18	t
+2020-01-19	t
+2020-01-25	t
+2020-01-26	t
+2020-02-01	t
+2020-02-02	t
+2020-02-08	t
+2021-11-27	t
+2021-11-28	t
+2021-12-04	t
+2021-12-05	t
+2021-12-11	t
+2021-12-12	t
+2021-12-18	t
+2021-12-19	t
+2021-12-25	t
+2021-12-26	t
+2022-01-01	t
+2022-01-02	t
+2022-01-08	t
+2022-01-09	t
+2022-01-15	t
+2022-01-16	t
+2022-01-22	t
+2022-01-23	t
+2022-01-29	t
+2022-01-30	t
+2022-02-05	t
+2022-02-06	t
+2022-02-12	t
+2020-12-20	t
+2020-12-26	t
+2020-12-27	t
+2021-01-02	t
+2021-01-03	t
+2021-01-09	t
+2019-06-02	t
+2019-06-08	t
+2019-06-09	t
+2019-06-15	t
+2019-06-16	t
+2019-06-22	t
+2019-06-23	t
+2019-06-29	t
+2019-06-30	t
+2019-07-06	t
+2019-07-07	t
+2019-07-13	t
+2022-02-13	t
+2020-05-30	t
+2020-05-31	t
+2020-06-06	t
+2020-06-07	t
+2020-06-13	t
+2020-06-14	t
+2020-06-20	t
+2020-06-21	t
+2020-06-27	t
+2020-06-28	t
+2020-07-04	t
+2020-07-05	t
+2020-07-11	t
+2020-07-12	t
+2020-07-18	t
+2020-07-19	t
+2020-07-25	t
+2020-07-26	t
+2020-08-01	t
+2020-08-02	t
+2020-08-08	t
+2020-08-09	t
+2020-08-15	t
+2020-08-16	t
+2022-03-19	t
+2022-03-20	t
+2022-03-26	t
+2022-03-27	t
+2022-04-02	t
+2022-04-03	t
+2022-04-09	t
+2022-04-10	t
+2022-04-16	t
+2022-04-17	t
+2022-04-23	t
+2022-04-24	t
+2022-04-30	t
+2022-05-01	t
+2022-05-07	t
+2022-05-08	t
+2022-05-14	t
+2022-05-15	t
+2022-05-21	t
+2022-05-22	t
+2022-05-28	t
+2022-05-29	t
+2022-06-04	t
+2022-06-05	t
+2022-06-11	t
+2022-06-12	t
+2022-06-18	t
+2022-06-19	t
+2022-06-25	t
+2022-06-26	t
+2022-07-02	t
+2022-07-03	t
+2022-07-09	t
+2022-07-10	t
+2022-07-16	t
+2022-07-17	t
+2022-07-23	t
+2022-07-24	t
+2022-07-30	t
+2022-07-31	t
+2022-08-06	t
+2022-08-07	t
+2022-08-13	t
+2022-08-14	t
+2022-08-20	t
+2022-08-21	t
+2022-08-27	t
+2022-10-02	t
+2022-10-08	t
+2022-10-09	t
+2022-10-15	t
+2022-10-16	t
+2022-10-22	t
+2022-10-23	t
+2022-10-29	t
+2022-10-30	t
+2022-11-05	t
+2022-11-06	t
+2022-11-12	t
+2022-11-13	t
+2022-11-19	t
+2022-11-20	t
+2022-11-26	t
+2022-11-27	t
+2022-12-03	t
+2023-04-23	t
+2023-04-29	t
+2023-04-30	t
+2023-05-06	t
+2023-05-07	t
+2023-05-13	t
+2023-05-14	t
+2023-05-20	t
+2023-05-21	t
+2023-05-27	t
+2023-05-28	t
+2023-06-03	t
+2023-06-04	t
+2023-06-10	t
+2023-06-11	t
+2023-06-17	t
+2023-06-18	t
+2023-06-24	t
+2023-06-25	t
+2023-07-01	t
+2023-07-02	t
+2023-07-08	t
+2023-07-09	t
+2023-07-15	t
+2023-07-16	t
+2023-07-22	t
+2023-07-23	t
+2023-07-29	t
+2023-07-30	t
+2023-08-05	t
+2023-08-06	t
+2023-08-12	t
+2023-08-13	t
+2023-08-19	t
+2023-08-20	t
+2023-08-26	t
+2023-08-27	t
+2023-09-02	t
+2023-09-03	t
+2023-09-09	t
+2023-09-10	t
+2023-09-16	t
+2023-09-17	t
+2023-09-23	t
+2023-09-24	t
+2023-09-30	t
+2023-10-01	t
+2023-10-07	t
+2023-10-08	t
+2023-10-14	t
+2023-10-15	t
+2023-10-21	t
+2023-10-22	t
+2023-10-28	t
+2023-10-29	t
+2023-11-04	t
+2023-11-05	t
+2024-04-07	t
+2024-04-13	t
+2024-04-14	t
+2024-04-20	t
+2024-04-21	t
+2024-04-27	t
+2024-04-28	t
+2024-05-04	t
+2024-05-05	t
+2024-05-11	t
+2024-05-12	t
+2024-05-18	t
+2024-05-19	t
+2024-05-25	t
+2024-05-26	t
+2024-06-01	t
+2024-06-02	t
+2024-06-08	t
+2024-06-09	t
+2024-06-15	t
+2024-06-16	t
+2024-06-22	t
+2024-06-23	t
+2024-06-29	t
+2024-06-30	t
+2024-07-06	t
+2024-07-07	t
+2024-07-13	t
+2024-07-14	t
+2024-07-20	t
+2024-07-21	t
+2024-07-27	t
+2024-07-28	t
+2024-08-03	t
+2024-08-04	t
+2024-08-10	t
+2024-08-11	t
+2024-08-17	t
+2024-08-18	t
+2024-08-24	t
+2024-08-25	t
+2024-08-31	t
+2024-09-01	t
+2024-09-07	t
+2024-09-08	t
+2024-09-14	t
+2024-09-15	t
+2021-10-02	t
 2019-10-27	t
 2019-11-02	t
 2019-11-03	t
@@ -6498,7 +6564,7 @@ COPY dict_prices_discounts (id, price_code, price_name, price_dscr, price_sum_fl
 -- Name: main_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('main_sequence', 17762, true);
+SELECT pg_catalog.setval('main_sequence', 17782, true);
 
 
 --
@@ -6508,11 +6574,11 @@ SELECT pg_catalog.setval('main_sequence', 17762, true);
 COPY t_bikes (bike_id, bike_inventory_number, bike_model_id, bike_use_beg_date, bike_price, bike_current_state_id, created_at, updated_at) FROM stdin;
 17616	8FC81AAFC39	10211	2016-01-01	120	17743	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17624	4238FCB3A15	10277	2016-02-23	100	17746	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
+17606	8CD795AAAFB	10211	2016-01-01	120	17763	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
+17638	94A01D05B6	10285	2016-03-02	70	17764	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17604	8DA75DF8F27	10211	2016-01-01	120	17605	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
-17606	8CD795AAAFB	10211	2016-01-01	120	17607	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17630	6C6EEF5CFA3	10277	2016-02-23	100	17631	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17632	39878E0688E	10277	2016-02-23	100	17633	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
-17638	94A01D05B6	10285	2016-03-02	70	17639	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17654	DAAF3548B3	10262	2015-07-12	50	17655	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17660	48E04645495	10211	2016-01-01	120	17661	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
 17662	797771BC2AA	10211	2016-01-01	120	17663	2017-01-07 14:47:02.453574	2017-01-07 14:47:26.194499
@@ -6671,6 +6737,8 @@ COPY t_bikes_states (id, bike_id, bike_state_id, bike_state_date) FROM stdin;
 17742	17648	10015	2017-01-28 22:56:30.161823
 17743	17616	10015	2017-01-28 22:58:36.013959
 17746	17624	10015	2017-01-28 23:07:38.688942
+17763	17606	10015	2017-01-29 22:11:38.850284
+17764	17638	10015	2017-01-29 22:11:38.8593
 \.
 
 
@@ -6719,6 +6787,12 @@ COPY t_booking_orders (id, booking_id, bike_id, created_at, updated_at) FROM std
 --
 
 COPY t_booking_prices (id, price_plans_id, booking_contents_id, currency_id, price, created_at, updated_at) FROM stdin;
+17777	\N	17752	10030	336	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
+17778	\N	17753	10030	462	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
+17779	\N	17752	10031	280	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
+17780	\N	17753	10031	588	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
+17781	16579	17753	10030	-32.3400000000000034	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
+17782	16579	17753	10031	-41.1599999999999966	2017-01-31 00:16:05.80187	2017-01-31 00:16:05.80187
 \.
 
 
