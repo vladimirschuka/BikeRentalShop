@@ -33,6 +33,8 @@ The application requirement:
 
 ### Step 1. Git clone
 
+git clone https://github.com/vladimirschuka/BikeRentalShop.git
+
 ### Step 2. DataBase configure
 
 ### Step 3. Add schema to DB
