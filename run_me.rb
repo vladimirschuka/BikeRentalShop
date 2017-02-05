@@ -28,7 +28,7 @@ class ConsoleApp
       puts '----------------------------------'
       puts 'Menu'
       puts '----------------------------------'
-      menu = ['0 -> Add Sample data' ,'1 -> Login','2 -> Bikes count','3 -> Create booking']
+      menu = ['0 -> Add sample data' ,'1 -> Login','2 -> Bikes count','3 -> Create booking']
     
       menu.each{|x| puts x} 
     
@@ -81,12 +81,10 @@ loop do
   
   case command
     when '0'
-      SampleData.addSchema
-    when '1'
       SampleData.addData
-    when '2'
+    when '1'
       application.login  
-    when '3'
+    when '2'
       puts 'We have : '
         BikeState.all.each{|bs| puts bs.bike_state_name + ' : ' + Bike.state(bs.bike_state_code).count.to_s + ' bikes'}  
     when 'menu'
@@ -98,6 +96,8 @@ loop do
       application.login  
     when 'help'
       application.help  
+    when 'exit'
+      exit 0
     else
       puts 'Invalid command ("help" for help)'
     end 

@@ -44,14 +44,15 @@ Database configuration file:
 repository have `config.yml.example` for example, this file contains:
 
     dbconfiguration:
-        adapter: 'postgresql'
-        host: 'localhost'
-        database: 'bikerentalshop'
-        username: 'postgres'
-        password: 'xxxxxx'  
+        adapter: postgresql
+        host: localhost
+        database: bikerentalshop
+        username: postgres
+        password: xxxxxx 
 
-A
-    
+
+
+
 ### Step 3. Add schema to DB
 
 ### Step 4. Add sample data to DB
