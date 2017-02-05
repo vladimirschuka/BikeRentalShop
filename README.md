@@ -50,12 +50,24 @@ repository have `config.yml.example` for example, this file contains:
         username: postgres
         password: xxxxxx 
 
-
+You have to change parameters to your DB.
 
 
 ### Step 3. Add schema to DB
 
-### Step 4. Add sample data to DB
+After create file config.yml you you need next:
 
-### Step 5. Use it !
+	bundle install
+
+when all gems will be installed, then:
+
+	run.sh
+
+This main script, create db, create schema, and add sample data on request
+
+### Step 4. Sample terminal application
+
+`ruby run_me.rb`
+
+
 
