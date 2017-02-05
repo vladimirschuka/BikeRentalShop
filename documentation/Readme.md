@@ -84,16 +84,17 @@ Prices is most freely part of task. Before describing this I have to explain the
 For example, if we want to create a special price for any bike model, for vip clients  when booking is create done march 2017 and for april 2017, regardless of the bikes count and the length of the booking. Discount is 10%
 Assuming the ID for the VIP customer group is 1.
 The following row should be inserted into the table:
-beg_date_order: 01.03.2017, 
-end_date_order: 31.03.2017, 
-period_beg_date: 01.04.2017, 
-period_end_date: 30.04.2017,
-bike_model_id: NULL (meaning any model),
-customer_group_id: 1,
-bike_count: NULL (any number of bikes),
-period_order_in_hour: NULL (any length or the order),
-price_special_value: 10,
-holiday_flag: null (holidays do not matter).
+
+- beg_date_order: 01.03.2017, 
+- end_date_order: 31.03.2017, 
+- period_beg_date: 01.04.2017, 
+- period_end_date: 30.04.2017,
+- bike_model_id: NULL (meaning any model),
+- customer_group_id: 1,
+- bike_count: NULL (any number of bikes),
+- period_order_in_hour: NULL (any length or the order),
+- price_special_value: 10,
+- holiday_flag: null (holidays do not matter).
 
 There is a view in the DB called v_booking_prices , readable for booking: v_bills_example. This view calculates the effective prices.
 This example from DB (partial output from the view v_bills_example) :
