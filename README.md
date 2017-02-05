@@ -1,7 +1,7 @@
 # BikeRentalShop
 ## Overview
 
-For implement this task I use Postgres as database and ruby as language for ORM implementation and some bash script.
+For implement this task I use Postgres as database and ruby as language for ORM implementation and some bash scripts.
 
 ##Project structure:
 
@@ -41,7 +41,7 @@ Database configuration file:
 
     dbconfig/config.yml
 
-repository have `config.yml.example` for example, this file contains:
+repository has `config.yml.example` for example, this file contains:
 
     dbconfiguration:
         adapter: postgresql

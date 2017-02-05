@@ -26,7 +26,7 @@ class ConsoleApp
   def menu
   
       puts '----------------------------------'
-      puts 'Menu'
+      puts 'Menu (version 0.0.1 I can''t do nothing)'
       puts '----------------------------------'
       menu = ['0 -> Add sample data' ,'1 -> Login','2 -> Bikes count','3 -> Create booking']
     
