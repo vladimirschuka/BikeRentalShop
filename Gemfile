@@ -6,4 +6,4 @@ gem "rspec"
 gem "activerecord"
 gem "table_print"
 gem "pg"
-gem "yaml"
+
