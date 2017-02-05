@@ -18,7 +18,23 @@ parse_yaml() {
 
 
 CONFIG_FILE="dbconfig/config.yml"
+
+if [ -f $CONFIG_FILE ]; then
+   echo "File $CONFIG_FILE exists. All ok."
+else
+   echo "File $CONFIG_FILE does not exist."
+   exit 1
+fi
+
+
 DUMP_FILE="dump/dump.sql"
+
+if [ -f $DUMP_FILE ]; then
+   echo "File $DUMP_FILE exists. All ok."
+else
+   echo "File $DUMP_FILE does not exist."
+   exit 1
+fi
 
 eval $(parse_yaml $CONFIG_FILE)
 
@@ -68,7 +84,7 @@ fi
 
 
 
-echo "For start applicatio ruby run_me.rb"
+echo "For start application: ruby run_me.rb"
 
 
 
