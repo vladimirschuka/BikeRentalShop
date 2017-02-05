@@ -69,5 +69,9 @@ This main script, create db, create schema, and add sample data on request
 
 `ruby run_me.rb`
 
+###Step 5. Read documentation
+
+All documentation in documentation folder [link](https://github.com/vladimirschuka/BikeRentalShop/tree/master/documentation)
+
 
 
