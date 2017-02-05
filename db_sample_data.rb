@@ -1,7 +1,14 @@
 require "./db_model.rb"
 
 
+
+
+
 class SampleData
+  def self.addSchema
+    AR.execute File.read('dump/dump.sql')
+  end
+  
   def self.addData
 # Colors
 colors = [

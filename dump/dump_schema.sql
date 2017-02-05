@@ -611,7 +611,10 @@ CREATE TABLE t_customers (
     mobile_phone_second character varying(50),
     email character varying(100),
     created_at timestamp without time zone DEFAULT now(),
-    updated_at timestamp without time zone DEFAULT now()
+    updated_at timestamp without time zone DEFAULT now(),
+    document text,
+    document_number text,
+    address text
 );
 
 

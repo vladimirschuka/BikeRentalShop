@@ -32,11 +32,26 @@ The application requirement:
 * ruby language for scripts
 
 ### Step 1. Git clone
+For copy files to local folder
 
     git clone https://github.com/vladimirschuka/BikeRentalShop.git
 
 ### Step 2. DataBase configure
+Database configuration file:
 
+    dbconfig/config.yml
+
+repository have `config.yml.example` for example, this file contains:
+
+    dbconfiguration:
+        adapter: 'postgresql'
+        host: 'localhost'
+        database: 'bikerentalshop'
+        username: 'postgres'
+        password: 'xxxxxx'  
+
+A
+    
 ### Step 3. Add schema to DB
 
 ### Step 4. Add sample data to DB

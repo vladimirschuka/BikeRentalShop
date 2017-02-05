@@ -81,10 +81,12 @@ loop do
   
   case command
     when '0'
-      SampleData.addData
+      SampleData.addSchema
     when '1'
-      application.login  
+      SampleData.addData
     when '2'
+      application.login  
+    when '3'
       puts 'We have : '
         BikeState.all.each{|bs| puts bs.bike_state_name + ' : ' + Bike.state(bs.bike_state_code).count.to_s + ' bikes'}  
     when 'menu'
