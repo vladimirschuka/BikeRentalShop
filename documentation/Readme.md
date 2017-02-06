@@ -121,6 +121,6 @@ Comments, open questions, points for discussion or future development:
 
 #Application
 
-For describe application lets see to following scheme:
+For describe the application lets see to following scheme:
 
 ![Application scheme](https://github.com/vladimirschuka/BikeRentalShop/blob/master/documentation/process_schema.jpg)
