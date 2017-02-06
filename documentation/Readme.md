@@ -64,7 +64,7 @@ Bookings have states (New, Confirmed, Completed, Canceled). Two of them are fina
 
 #Prices
 
-Prices is most freely part of task. Before describing this I have to explain the main thing. For each bike model we have the base prices, for example: bmx bike – 10 $ per day. for each period of time we can have different base price. Then, we have the specials prices, that are used in different discounting schemes. Of course we can’t implement all possible discounting scenarios with just modeling them in the DB without having any logic in the application. But the current model defines many standard cases. Most typical would be special prices for VIP clients or Christmas discounts. 
+Prices the most complicated part of the task. Before describing this I have to explain the main thing. For each bike model we have the base prices, for example: bmx bike – 10 $ per day. for each period of time we can have different base price. Then, we have the specials prices, that are used in different discounting schemes. Of course we can’t implement all possible discounting scenarios with just modeling them in the DB without having any logic in the application. But the current model defines many standard cases. Most typical would be special prices for VIP clients or Christmas discounts. 
  In this model, the logic is defined by 3 tables:
 
 * t_prices – the current base prices for bikes
@@ -96,7 +96,7 @@ The following row should be inserted into the table:
 - price_special_value: 10,
 - holiday_flag: null (holidays do not matter).
 
-There is a view in the DB called v_booking_prices , readable for booking: v_bills_example. This view calculates the effective prices.
+There is a view in the DB called v_booking_prices. This view calculates the effective prices. And there is another one, human readable - v_bills_example  which can be used to get the idea of the price structure.
 This example from DB (partial output from the view v_bills_example) :
 
  bike_model_name | price_code | Price type |  currency_name | price

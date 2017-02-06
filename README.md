@@ -5,23 +5,19 @@ For implement this task I use Postgres as database and ruby as language for ORM 
 
 ##Project structure:
 
-1. dbconfig - folder with the database connection configuration file
+1. dbconfig - the folder with the database connection configuration file
 
-* config.yml.example - may be used as example (will be rename as config.yml)
+	* config.yml.example - the file with example configuration
 
-2. documentation - folder contain the documentation files
+2. documentation - the folder with documentation
 
-3. dump - database dump, contain folowing files:
-
-* dump_schema.sql - file with schema only
-
-* dump.sql - schema and sample data
+3. dump - the dumps of the database: the full dump and the schema-only dump
 
 4. ruby scripts:
 
-* db_model.rb - ORM by ruby
+	* db_model.rb - ORM by ruby
 
-* db_sample_data.rb - ruby script with sample data	
+	* db_sample_data.rb - ruby script with sample data	
 
 ## How to use it
 
@@ -31,17 +27,15 @@ The application requirement:
 
 * ruby language for scripts
 
-### Step 1. Git clone
-For copy files to local folder
+Copy files to local folder
 
     git clone https://github.com/vladimirschuka/BikeRentalShop.git
 
-### Step 2. DataBase configure
-Database configuration file:
+Changing the database configuration file:
 
     dbconfig/config.yml
 
-repository has `config.yml.example` for example, this file contains:
+The repository has `config.yml.example` for example.
 
     dbconfiguration:
         adapter: postgresql
@@ -52,22 +46,24 @@ repository has `config.yml.example` for example, this file contains:
 
 You have to change parameters to your DB.
 
+After creating configuration file `config.yml`, you need install ruby languge:
 
-### Step 3. Add schema to DB
+	apt-get install ruby
 
-After create file config.yml you you need next:
+Installation the necessary components
 
 	bundle install
 
-when all gems will be installed, then:
+Run the main script, that creating database, creating scheme and the sample data
 
 	run.sh
 
-This main script, create db, create schema, and add sample data on request
 
-### Step 4. Sample terminal application
+##Sample terminal application
 
-`ruby run_me.rb`
+The small terminal application which show clients and the numbers of the bikes.
+
+	ruby run_me.rb
 
 ##Documentation
 

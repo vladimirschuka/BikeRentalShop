@@ -4,7 +4,7 @@ require 'pg'
 require 'active_record'
 require 'yaml'
 require 'table_print'
-require 'Date'
+require 'date'
 
 
 dbparams = YAML.load_file('dbconfig/config.yml')['dbconfiguration']
